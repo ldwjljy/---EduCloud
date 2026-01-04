@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block page_title %}课程管理{% endblock %}
+{% block page_header %}课程管理{% endblock %}
+{% block page_actions %}
+<a href="/courses/create/" class="btn btn-primary">
+    <i class="fa-solid fa-plus"></i> 新增课程
+</a>
+{% endblock %}
+{% block content %}
+<div class="card mb-4 border-0 shadow-sm">
+    <div class="card-body">
+        <form class="row g-3" method="get">
+            <div class="col-md-9">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" name="q" value="{{ q }}" class="form-control bg-light border-0"
+                        placeholder="搜索课程代码/名称...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-primary w-100" type="submit">搜索</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table align-middle table-hover mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">课程代码</th>
+                        <th>课程名称</th>
+                        <th>类别</th>
+                        <th>选课人数</th>
+                        <th class="text-end pe-4">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in items %}
+                    <tr>
+                        <td class="ps-4 fw-bold text-primary">{{ c.code }}</td>
+                        <td>{{ c.name }}</td>
+                        <td><span class="badge bg-light text-dark border">{{ c.category }}</span></td>
+                        <td><span class="badge bg-info-subtle text-info">{{ c.enroll_count }}</span></td>
+                        <td class="text-end pe-4">
+                            <a href="/courses/edit/{{ c.id }}/" class="btn btn-sm btn-outline-primary me-1" title="编辑">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
+                            <a href="/courses/delete/{{ c.id }}/" class="btn btn-sm btn-outline-danger" title="删除">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <div class="mb-2"><i class="fa-regular fa-folder-open fa-2x"></i></div>
+                            暂无课程数据
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer bg-white">
+        <nav>
+            <ul class="pagination mb-0">
+                {% if items.has_previous %}<li class="page-item"><a class="page-link"
+                        href="?page={{ items.previous_page_number }}&q={{ q }}">上一页</a></li>{% endif %}
+                <li class="page-item active"><span class="page-link">{{ items.number }}</span></li>
+                {% if items.has_next %}<li class="page-item"><a class="page-link"
+                        href="?page={{ items.next_page_number }}&q={{ q }}">下一页</a></li>{% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endblock %}

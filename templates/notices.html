@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block page_title %}通知公告{% endblock %}
+{% block page_header %}通知公告{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/dashboard/dashboard.css' %}">
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="section mb-3"><span class="badge bg-primary">消息通知</span></div>
+
+    <div class="row g-4">
+      <div class="col-md-8">
+        <div class="card border-0 shadow-sm p-4 h-100" id="noticeListCard">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="card-title fw-bold">公告列表</div>
+            <div class="d-flex align-items-center gap-2" id="noticeListActions">
+              <div class="form-check me-2">
+                <input id="noSelAll" class="form-check-input" type="checkbox" onclick="noticeSelectAll(this.checked)">
+                <label class="form-check-label" for="noSelAll">全选</label>
+              </div>
+              <button class="btn btn-outline-danger btn-sm" onclick="deleteSelectedNotices()">删除所选</button>
+              <button class="btn btn-outline-primary btn-sm" onclick="loadNotices()">刷新</button>
+            </div>
+          </div>
+          <div class="mb-3 d-flex align-items-center gap-2">
+            <input id="noticeQ" class="form-control" placeholder="搜索公告(标题/内容)" />
+            <div class="form-check">
+              <input id="noticeMine" class="form-check-input" type="checkbox"
+                onclick="onNoticeMineToggle(this.checked)">
+              <label class="form-check-label" for="noticeMine">只看我发布</label>
+            </div>
+            <select id="noticePubRole" class="form-select" style="width:auto"
+              onchange="onNoticePublisherRoleChange(this)">
+              <option value="">发布者：全部</option>
+              <option value="admin">管理员/院级</option>
+              <option value="teacher">教师/班主任</option>
+            </select>
+          </div>
+          <div id="noticeList"></div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100" id="noticeAdd">
+          <div class="card-title fw-bold mb-3">发布公告</div>
+          <div class="d-grid gap-3">
+            <input id="noticeTitle" class="form-control" placeholder="标题" />
+            <textarea id="noticeContent" class="form-control" style="height:120px" placeholder="内容"></textarea>
+            <select id="noticeScope" class="form-select">
+              <option value="all">全校范围</option>
+              <option value="role">教师范围</option>
+            </select>
+            <button class="btn btn-primary" onclick="addNotice()">发布</button>
+          </div>
+          <div id="noticemsg" class="mt-3 text-center"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="noticeModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="noticeModalTitle"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="noticeModalBody" style="white-space: pre-wrap;"></div>
+        <div id="noticeModalMeta" class="mt-3 text-muted small"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'js/notices/notices.js' %}"></script>
+{% endblock %}

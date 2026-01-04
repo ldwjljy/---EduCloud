@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/dashboard/dashboard.css' %}">
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="section mb-3"><span class="badge bg-primary">院系管理</span></div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100">
+          <div class="card-title fw-bold mb-3">新增院系</div>
+          <div class="d-grid gap-3">
+            <input id="deptName" class="form-control" placeholder="院系名称" />
+            <select id="deptCollege" class="form-select"></select>
+            <button class="btn btn-primary" onclick="addDept()">新增院系</button>
+          </div>
+          <div id="msg" class="mt-3 text-center"></div>
+        </div>
+      </div>
+      <div class="col-md-8">
+        <div class="card border-0 shadow-sm p-4 h-100">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="card-title fw-bold">院系列表</div>
+            <input id="q" class="form-control w-auto" placeholder="搜索院系..." style="max-width:220px" />
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>ID</th>
+                  <th>院系名称</th>
+                  <th>所属学院</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="rows"></tbody>
+            </table>
+          </div>
+          <div id="total" class="text-muted small mt-2"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  async function loadColleges() { try { const r = await api('/api/org/colleges'); const s = document.getElementById('deptCollege'); if (s) s.innerHTML = '<option value="">选择学院</option>' + r.map(x => `<option value="${x.id}">${x.name}</option>`).join('') } catch (e) { } }
+  async function loadDepts() { let r = []; try { r = await api('/api/org/departments') } catch (e) { r = [] } const q = (document.getElementById('q') && document.getElementById('q').value || '').trim().toLowerCase(); const rows = document.getElementById('rows'); const total = document.getElementById('total'); const list = r.filter(x => !q || String(x.name).toLowerCase().includes(q)); if (rows) rows.innerHTML = list.map(x => `<tr><td>${x.id}</td><td>${x.name}</td><td>${x.college}</td><td><button class="btn" onclick="delDept(${x.id})">删除</button></td></tr>`).join(''); if (total) total.textContent = '共' + list.length + '条' }
+  async function addDept() { const name = (document.getElementById('deptName') && document.getElementById('deptName').value || '').trim(); const college = Number(document.getElementById('deptCollege').value || ''); const msg = document.getElementById('msg'); if (!name || !college) { if (msg) msg.textContent = '请填写完整'; return } try { await api('/api/org/departments/', 'POST', { name, college }); if (msg) msg.textContent = '新增成功'; document.getElementById('deptName').value = ''; document.getElementById('deptCollege').value = ''; loadDepts() } catch (e) { if (msg) msg.textContent = '新增失败' } }
+  async function delDept(id) { if (!confirm('确认删除该院系？')) return; try { await api('/api/org/departments/' + id + '/', 'DELETE'); loadDepts() } catch (e) { } }
+  document.addEventListener('DOMContentLoaded', () => { loadColleges(); loadDepts(); const q = document.getElementById('q'); if (q) q.addEventListener('input', loadDepts) })
+</script>
+{% endblock %}

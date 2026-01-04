@@ -1,0 +1,1545 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block page_title %}课程管理{% endblock %}
+{% block page_header %}课程管理{% endblock %}
+{% block head %}
+<style>
+  :root {
+    --primary-color: #4318ff;
+    --primary-light: #eef2ff;
+    --border-color: #e0e5f2;
+    --text-main: #2b3674;
+    --text-light: #a3aed0;
+    --bg-hover: #f4f7fe;
+    --conflict-color: #ef4444;
+  }
+
+  /* Card Enhancements */
+  .card {
+    border: none;
+    box-shadow: var(--shadow-sm);
+    border-radius: 16px;
+    background: white;
+    padding: 24px;
+  }
+
+  /* Modern Inputs */
+  .input {
+    background-color: #f4f7fe;
+    border: 1px solid transparent;
+    border-radius: 16px;
+    padding: 10px 16px;
+    color: var(--text-main);
+    transition: all 0.2s;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .input:focus {
+    background-color: #fff;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(67, 24, 255, 0.15);
+    outline: none;
+  }
+
+  /* Scheduling Header */
+  .schedule-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 20px;
+  }
+
+  .schedule-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Controls Layout */
+  .controls-section {
+    background: var(--bg-hover);
+    padding: 16px;
+    border-radius: 16px;
+    margin-bottom: 20px;
+  }
+
+  .controls-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  /* Course Palette */
+  .palette-container {
+    border: 1px dashed var(--border-color);
+    border-radius: 16px;
+    padding: 16px;
+    min-height: 80px;
+    max-height: 200px;
+    overflow-y: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+    background: #fff;
+  }
+
+  .drag-card {
+    background: white;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    cursor: grab;
+    user-select: none;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .drag-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(67, 24, 255, 0.2);
+  }
+
+  /* Timetable Grid */
+  .tt-container {
+    overflow-x: auto;
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow-sm);
+    padding: 4px;
+  }
+
+  .tt-grid {
+    display: grid;
+    grid-template-columns: 60px repeat(7, 1fr);
+    /* Time col + 7 days */
+    grid-auto-rows: minmax(40px, auto);
+    gap: 1px;
+    background: var(--border-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  /* Admin/Teacher view scaling */
+  .tt-grid.zoomed {
+    zoom: 0.6;
+  }
+
+  .tt-header {
+    background: #f8fafc;
+    padding: 8px 4px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-main);
+    font-size: 0.8rem;
+  }
+
+  .tt-time-col {
+    background: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    color: var(--text-light);
+    padding: 2px;
+    min-height: 10px;
+    text-align: center;
+    font-weight: 500;
+  }
+
+  .tt-midline {
+    background: #f1f5f9;
+    height: 12px;
+    align-self: center;
+    width: 100%;
+  }
+
+  .tt-cell {
+    background: white;
+    height: 100%;
+    position: relative;
+    transition: background 0.2s;
+    padding: 2px;
+  }
+
+  .tt-cell:hover {
+    background: #fafafa;
+  }
+
+  .tt-cell.dragover {
+    background: var(--primary-light);
+    box-shadow: inset 0 0 0 2px var(--primary-color);
+  }
+
+  /* Course Block in Grid */
+  .tt-block {
+    margin: 0;
+    padding: 6px 8px;
+    height: 100%;
+    box-sizing: border-box;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    color: var(--text-main);
+    cursor: grab;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    line-height: 1.4;
+    transition: transform 0.1s, box-shadow 0.1s, opacity 0.2s;
+    display: flex;
+    flex-direction: column;
+    font-weight: 500;
+    z-index: 5;
+    background: white;
+    border-left: 3px solid var(--primary-color);
+  }
+
+  /* When dragging, disable events on blocks so we can drop on the underlying cell */
+  .tt-grid.is-dragging .tt-block {
+    pointer-events: none;
+    opacity: 0.4;
+  }
+
+  .tt-grid.is-dragging .tt-cell {
+    /* Ensure cells highlight strongly */
+    z-index: 1;
+  }
+
+  .tt-course-name {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    font-weight: 600;
+    color: var(--primary-color);
+  }
+
+  .tt-info {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    opacity: 0.9;
+    font-size: 0.7rem;
+  }
+
+  .tt-actions {
+    display: none;
+    position: absolute;
+    top: 2px;
+    right: 2px;
+  }
+
+  .tt-block:hover .tt-actions {
+    display: block;
+  }
+
+  .tt-del {
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    text-align: center;
+    line-height: 16px;
+    color: var(--conflict-color);
+    font-weight: bold;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  .tt-block.conflict {
+    border: 2px solid var(--conflict-color);
+    animation: pulse 2s infinite;
+    position: relative;
+  }
+
+  .tt-block.conflict::after {
+    content: "!";
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: var(--conflict-color);
+    color: white;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    text-align: center;
+    line-height: 16px;
+    font-weight: bold;
+  }
+
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+    }
+
+    70% {
+      box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+    }
+
+    100% {
+      box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+  }
+
+  /* View Controls */
+  .view-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+    padding: 16px;
+    background: white;
+    border: none;
+    box-shadow: var(--shadow-sm);
+    border-radius: 16px;
+  }
+
+  .btn.primary {
+    background-color: var(--primary-color);
+    color: white;
+  }
+
+  .btn.primary:hover {
+    filter: brightness(1.1);
+  }
+
+  /* 课程列表样式 */
+  .course-list-container {
+    background: #fafbfc;
+  }
+
+  .course-list-item {
+    background: white;
+    border: 1px solid #e0e5f2;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    cursor: grab;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    position: relative;
+    user-select: none;
+    gap: 0;
+  }
+
+  .course-list-item .course-checkbox {
+    margin: 0;
+    margin-right: 12px;
+    cursor: pointer;
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    min-height: 18px;
+    accent-color: var(--primary-color);
+    opacity: 1;
+    visibility: visible;
+    display: block;
+    position: relative;
+    z-index: 10;
+  }
+
+  .course-list-item .course-checkbox:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+
+  .course-list-item .course-checkbox:focus {
+    box-shadow: 0 0 0 0.2rem rgba(67, 24, 255, 0.25);
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+
+  .course-list-item .course-checkbox:hover {
+    border-color: var(--primary-color);
+  }
+
+  .course-list-item.selected {
+    background: var(--primary-light);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(67, 24, 255, 0.1);
+  }
+
+  #selectAllCourses {
+    accent-color: var(--primary-color);
+    cursor: pointer;
+  }
+
+  #selectAllCourses:indeterminate {
+    background: var(--primary-color);
+  }
+
+  .course-list-item::after {
+    content: '\f044';
+    /* FontAwesome edit icon */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    transition: opacity 0.2s;
+    font-size: 12px;
+    color: var(--primary-color);
+    pointer-events: none;
+  }
+
+  .course-list-item:hover {
+    border-color: var(--primary-color);
+    background: var(--primary-light);
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(67, 24, 255, 0.15);
+  }
+
+  .course-list-item:hover::after {
+    opacity: 0.6;
+  }
+
+  .course-list-item:active {
+    cursor: grabbing;
+  }
+
+  .course-list-item.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+  }
+
+  .course-list-item.no-teacher {
+    opacity: 0.6;
+    cursor: not-allowed;
+    border-color: #ffc107;
+    background: #fff9e6;
+  }
+
+  .course-list-item.no-teacher:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .course-list-item-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .course-list-item-name {
+    font-weight: 600;
+    color: var(--text-main);
+    font-size: 0.875rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .course-list-item-teacher {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .course-list-item-badge {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .course-list-item-badge.required {
+    background: #ffe5e5;
+    color: #ef4444;
+  }
+
+  .course-list-item-badge.elective {
+    background: #e5f3ff;
+    color: #4318ff;
+  }
+
+  .course-list-container::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .course-list-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+
+  .course-list-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+  }
+
+  .course-list-container::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+  }
+
+  /* 统一弹窗系统样式 */
+  .custom-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .custom-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .custom-modal-dialog {
+    position: relative;
+    z-index: 2001;
+    max-width: 480px;
+    width: 90%;
+    animation: slideDown 0.3s ease-out;
+  }
+
+  .custom-modal-content {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+  }
+
+  .custom-modal-header {
+    padding: 24px 24px 16px;
+    text-align: center;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .custom-modal-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+  }
+
+  .custom-modal-icon.success-icon {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  }
+
+  .custom-modal-icon.warning-icon {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  }
+
+  .custom-modal-icon.error-icon {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  }
+
+  .custom-modal-icon.confirm-icon {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  }
+
+  .custom-modal-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0;
+  }
+
+  .custom-modal-body {
+    padding: 20px 24px;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    line-height: 1.6;
+    text-align: center;
+    white-space: pre-line;
+  }
+
+  .custom-modal-footer {
+    padding: 16px 24px 24px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .custom-modal-footer .btn {
+    min-width: 100px;
+    border-radius: 12px;
+    padding: 10px 24px;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .custom-modal-footer .btn-primary {
+    background: var(--primary-color);
+    border: none;
+  }
+
+  .custom-modal-footer .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(67, 24, 255, 0.3);
+  }
+
+  .custom-modal-footer .btn-light {
+    background: #f4f7fe;
+    border: none;
+    color: var(--text-main);
+  }
+
+  .custom-modal-footer .btn-light:hover {
+    background: #e8ecf7;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ==================== 响应式设计 - 小屏幕适配 ==================== */
+
+  /* 中等屏幕 (平板) */
+  @media (max-width: 991.98px) {
+    .card {
+      padding: 16px;
+    }
+
+    .schedule-title {
+      font-size: 1.1rem;
+    }
+
+    .btn {
+      font-size: 0.875rem;
+      padding: 8px 16px;
+    }
+
+    .btn-sm {
+      font-size: 0.75rem;
+      padding: 6px 12px;
+    }
+
+    .form-control,
+    .form-select {
+      font-size: 0.875rem;
+      padding: 8px 12px;
+    }
+
+    .controls-section {
+      padding: 12px;
+    }
+
+    .view-controls {
+      padding: 12px;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-start !important;
+    }
+
+    .view-controls h5 {
+      font-size: 1rem;
+    }
+
+    .tt-header {
+      font-size: 0.8rem;
+      padding: 8px 4px;
+    }
+
+    .tt-time-col {
+      font-size: 0.7rem;
+      padding: 2px;
+    }
+
+    .tt-block {
+      font-size: 0.7rem;
+      padding: 4px 6px;
+    }
+
+    .course-list-item-name {
+      font-size: 0.8rem;
+    }
+
+    .course-list-item-teacher {
+      font-size: 0.7rem;
+    }
+  }
+
+  /* 小屏幕 (手机) */
+  @media (max-width: 767.98px) {
+    .card {
+      padding: 12px;
+      border-radius: 12px;
+    }
+
+    /* 标题和文字 */
+    .fw-bold.text-primary.mb-3.fs-5 {
+      font-size: 1rem !important;
+      margin-bottom: 12px !important;
+    }
+
+    h6.text-secondary.small.fw-bold {
+      font-size: 0.75rem;
+    }
+
+    .schedule-title {
+      font-size: 1rem;
+      gap: 6px;
+    }
+
+    /* 按钮字体和大小 */
+    .btn {
+      font-size: 0.8rem;
+      padding: 6px 12px;
+      border-radius: 8px;
+    }
+
+    .btn-sm {
+      font-size: 0.7rem;
+      padding: 5px 10px;
+    }
+
+    .btn-primary,
+    .btn-outline-primary,
+    .btn-outline-secondary,
+    .btn-success,
+    .btn-danger,
+    .btn-warning,
+    .btn-light {
+      font-size: 0.8rem;
+    }
+
+    /* 表单元素 */
+    .form-control,
+    .form-select {
+      font-size: 0.8rem;
+      padding: 6px 10px;
+      border-radius: 8px;
+    }
+
+    .form-select.form-select-sm {
+      font-size: 0.75rem;
+      padding: 5px 8px;
+    }
+
+    .form-label {
+      font-size: 0.8rem;
+      margin-bottom: 4px;
+    }
+
+    .form-label.small {
+      font-size: 0.7rem;
+    }
+
+    /* 间距调整 */
+    .mb-3 {
+      margin-bottom: 12px !important;
+    }
+
+    .mb-2 {
+      margin-bottom: 8px !important;
+    }
+
+    .mt-3 {
+      margin-top: 12px !important;
+    }
+
+    .gap-2 {
+      gap: 6px !important;
+    }
+
+    /* 控件区域 */
+    .controls-section {
+      padding: 10px;
+      margin-bottom: 12px;
+    }
+
+    .controls-grid {
+      gap: 8px;
+    }
+
+    /* 视图控制 */
+    .view-controls {
+      padding: 10px;
+      margin-bottom: 12px;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .view-controls h5 {
+      font-size: 0.95rem;
+    }
+
+    .view-controls .d-flex {
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    /* 课程列表 */
+    .course-list-item {
+      padding: 8px 10px;
+      margin-bottom: 4px;
+    }
+
+    .course-list-item-name {
+      font-size: 0.75rem;
+    }
+
+    .course-list-item-teacher {
+      font-size: 0.65rem;
+    }
+
+    .course-list-item-badge {
+      font-size: 0.65rem;
+      padding: 2px 4px;
+    }
+
+    .course-checkbox {
+      width: 16px !important;
+      height: 16px !important;
+      min-width: 16px !important;
+      min-height: 16px !important;
+    }
+
+    /* 课程表 */
+    .tt-container {
+      border-radius: 12px;
+      padding: 2px;
+    }
+
+    .tt-grid {
+      grid-template-columns: 50px repeat(7, 1fr);
+      gap: 1px;
+    }
+
+    .tt-header {
+      font-size: 0.7rem;
+      padding: 6px 2px;
+      font-weight: 600;
+    }
+
+    .tt-time-col {
+      font-size: 0.65rem;
+      padding: 2px;
+      min-height: 10px;
+    }
+
+    .tt-block {
+      font-size: 0.65rem;
+      padding: 3px 5px;
+      border-radius: 6px;
+      line-height: 1.3;
+    }
+
+    .tt-course-name {
+      font-size: 0.65rem;
+    }
+
+    .tt-info {
+      font-size: 0.6rem;
+    }
+
+    .tt-midline {
+      height: 10px;
+    }
+
+    /* 拖拽卡片 */
+    .drag-card {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 16px;
+    }
+
+    .palette-container {
+      padding: 10px;
+      min-height: 60px;
+      gap: 6px;
+    }
+
+    /* 筛选区域 */
+    .card-body.p-3 {
+      padding: 12px !important;
+    }
+
+    .row.g-2 {
+      --bs-gutter-y: 0.5rem;
+      --bs-gutter-x: 0.5rem;
+    }
+
+    /* 模态框 */
+    .custom-modal-dialog {
+      width: 95%;
+      max-width: 95%;
+    }
+
+    .custom-modal-content {
+      border-radius: 16px;
+    }
+
+    .custom-modal-header {
+      padding: 16px 16px 12px;
+    }
+
+    .custom-modal-icon {
+      width: 48px;
+      height: 48px;
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .custom-modal-title {
+      font-size: 1.1rem;
+    }
+
+    .custom-modal-body {
+      padding: 16px;
+      font-size: 0.875rem;
+    }
+
+    .custom-modal-footer {
+      padding: 12px 16px 16px;
+      gap: 8px;
+    }
+
+    .custom-modal-footer .btn {
+      min-width: 80px;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+    }
+
+    /* 编辑模态框 */
+    #editCourseModal .modal-dialog,
+    #conflictModal .modal-dialog,
+    #editScheduleModal .modal-dialog {
+      max-width: 95%;
+      margin: 10px;
+    }
+
+    #editCourseModal .modal-content,
+    #conflictModal .modal-content,
+    #editScheduleModal .modal-content {
+      padding: 16px;
+      border-radius: 12px;
+    }
+
+    .modal-title {
+      font-size: 1rem;
+    }
+
+    .modal-footer {
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .modal-footer .btn {
+      width: 100%;
+      margin: 0 !important;
+    }
+
+    /* 全选和批量操作区域 */
+    .d-flex.justify-content-between.align-items-center.p-2 {
+      padding: 8px !important;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .form-check-label.small {
+      font-size: 0.75rem;
+    }
+
+    /* 徽章 */
+    .badge {
+      font-size: 0.7rem;
+      padding: 3px 6px;
+    }
+
+    /* 小文字提示 */
+    small.text-muted {
+      font-size: 0.7rem;
+    }
+
+    /* 输入组 */
+    .input-group .btn {
+      padding: 6px 12px;
+    }
+
+    /* 复选框标签 */
+    .form-check-label {
+      font-size: 0.75rem;
+    }
+  }
+
+  /* 超小屏幕 (小手机) */
+  @media (max-width: 575.98px) {
+    .card {
+      padding: 10px;
+    }
+
+    .btn {
+      font-size: 0.75rem;
+      padding: 5px 10px;
+    }
+
+    .btn-sm {
+      font-size: 0.65rem;
+      padding: 4px 8px;
+    }
+
+    .form-control,
+    .form-select {
+      font-size: 0.75rem;
+      padding: 5px 8px;
+    }
+
+    .tt-grid {
+      grid-template-columns: 45px repeat(7, 1fr);
+      min-width: 600px;
+      /* Force horizontal scroll for readability */
+    }
+
+    .tt-header {
+      font-size: 0.65rem;
+      padding: 4px 2px;
+    }
+
+    .tt-time-col {
+      font-size: 0.6rem;
+    }
+
+    .tt-block {
+      font-size: 0.6rem;
+      padding: 2px 4px;
+    }
+
+    .view-controls .d-flex.gap-2 {
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .view-controls .btn {
+      width: 100%;
+      margin-bottom: 4px;
+    }
+
+    /* Ensure week navigation stays on one line or wraps nicely */
+    .view-controls .d-flex.gap-2.align-items-center {
+      flex-wrap: wrap;
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* 课程列表项在小屏幕上更紧凑 */
+    .course-list-container {
+      max-height: 250px;
+      padding: 6px;
+    }
+
+    /* 筛选表单在小屏幕上单列显示 */
+    .row.g-2>[class*="col-md-"] {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+
+    /* 按钮组在小屏幕上垂直排列 */
+    .d-flex.gap-2 {
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .d-flex.gap-2 .btn {
+      width: 100%;
+    }
+
+    /* 自定义模态框按钮在小屏幕上垂直排列 */
+    .custom-modal-footer {
+      flex-direction: column;
+    }
+
+    .custom-modal-footer .btn {
+      width: 100%;
+      margin: 0 !important;
+    }
+  }
+</style>
+{% endblock %}
+{% block content %}
+<div class="row">
+  <!-- 第一区：课程库 (仅管理员可见) -->
+  {% if is_admin %}
+  <div class="col-12 col-lg-3 mb-4">
+    <div class="card h-100 p-3" id="courseLib">
+      <div class="fw-bold text-primary mb-3 fs-5"><i class="fa-solid fa-book me-2"></i>课程管理</div>
+
+      <!-- 新增/编辑课程 -->
+      <div class="mb-3">
+        <h6 class="text-secondary small fw-bold mb-2">新增/编辑课程</h6>
+        <div class="row g-2 mb-2">
+          <div class="col-12 col-sm-8"><input id="courseName" class="form-control" placeholder="课程名称" /></div>
+          <div class="col-12 col-sm-4">
+            <select id="courseType" class="form-select">
+              <option value="required">必修</option>
+              <option value="elective">选修</option>
+            </select>
+          </div>
+        </div>
+        <div class="row g-2 mb-2">
+          <div class="col-12 col-sm-4"><select id="courseTeacherCollege" class="form-select">
+              <option value="">选择学院</option>
+            </select></div>
+          <div class="col-12 col-sm-4"><select id="courseTeacherDept" class="form-select">
+              <option value="">选择专业</option>
+            </select></div>
+          <div class="col-12 col-sm-4"><select id="courseTeacher" class="form-select">
+              <option value="">选择老师</option>
+            </select></div>
+        </div>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="showAllTeachers" onchange="toggleTeacherFilter()">
+          <label class="form-check-label small text-secondary" for="showAllTeachers">
+            显示所有教师（跨学院/专业）
+          </label>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-primary w-100" onclick="addCourse()">新增</button>
+        </div>
+        <div id="courseMsg" class="mt-2 small text-muted"></div>
+      </div>
+
+      <hr class="text-secondary opacity-25 my-3">
+
+      <!-- 搜索课程 -->
+      <div class="mb-3">
+        <h6 class="text-secondary small fw-bold mb-2">
+          <i class="fa-solid fa-search me-1"></i>搜索课程
+        </h6>
+        <div class="input-group mb-2">
+          <input id="courseSearch" class="form-control" placeholder="搜索课程" />
+          <button class="btn btn-primary" onclick="loadCourses()"><i class="fa-solid fa-search"></i></button>
+        </div>
+        <div class="row g-2">
+          <div class="col-12 col-sm-6"><select id="courseFilterCollege" class="form-select">
+              <option value="">筛选学院</option>
+            </select></div>
+          <div class="col-12 col-sm-6"><select id="courseFilterDept" class="form-select">
+              <option value="">筛选专业</option>
+            </select></div>
+        </div>
+      </div>
+
+      <!-- 课程列表 -->
+      <div class="mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div>
+            <h6 class="text-secondary small fw-bold mb-0">
+              <i class="fa-solid fa-list me-1"></i>课程列表
+              <span id="courseCount" class="badge bg-primary ms-1">0</span>
+            </h6>
+            <small class="text-muted" style="font-size: 10px;">
+              <i class="fa-solid fa-circle-info me-1"></i>双击课程可编辑，Ctrl+点击可多选
+            </small>
+          </div>
+          <button class="btn btn-sm btn-outline-primary" onclick="refreshCourseList()">
+            <i class="fa-solid fa-refresh"></i>
+          </button>
+        </div>
+
+        <!-- 全选和批量操作 -->
+        <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="selectAllCourses" onchange="toggleSelectAll()">
+            <label class="form-check-label small" for="selectAllCourses">
+              全选 (<span id="selectedCount">0</span>)
+            </label>
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-success" onclick="autoScheduleSelected()" id="autoScheduleBtn" disabled>
+              <i class="fa-solid fa-wand-magic-sparkles me-1"></i>自动排课
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deleteSelectedCourses()" id="deleteSelectedBtn" disabled>
+              <i class="fa-solid fa-trash me-1"></i>删除
+            </button>
+          </div>
+        </div>
+
+        <div class="course-list-container" id="courseListContainer"
+          style="max-height: 400px; overflow-y: auto; border: 1px solid #e0e5f2; border-radius: 12px; padding: 4px;">
+          <div class="text-center text-secondary small p-3">加载中...</div>
+        </div>
+
+        <div class="mt-2 small text-muted">
+          <i class="fa-solid fa-info-circle me-1"></i>拖拽课程到课表即可排课
+        </div>
+      </div>
+
+      <hr class="text-secondary opacity-25 my-3">
+
+      <div class="mt-auto">
+        <button class="btn btn-outline-primary w-100 mb-2" onclick="autoSchedule()">
+          <i class="fa-solid fa-wand-magic-sparkles me-2"></i>智能排课
+        </button>
+        <button class="btn btn-outline-secondary w-100" onclick="checkConflicts()">
+          <i class="fa-solid fa-check-double me-2"></i>冲突检测
+        </button>
+        <div id="scheduleMsg" class="mt-2 small text-muted"></div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- 第二区：排课表 -->
+  <div class="col-12 {% if is_admin %}col-lg-9{% else %}col-lg-12{% endif %} mb-4">
+    <div class="view-controls justify-content-between">
+      <h5 class="m-0 fw-bold text-primary">
+        <i class="fa-solid fa-calendar-days me-2"></i>课程表
+      </h5>
+      <div class="d-flex gap-2 align-items-center">
+        {% if is_admin %}
+        <button class="btn btn-sm btn-primary" onclick="showSaveScheduleModal()" title="保存当前周课程安排">
+          <i class="fa-solid fa-save me-1"></i>保存
+        </button>
+        <button class="btn btn-sm btn-outline-danger" onclick="resetTimetable()" title="重置课程表">
+          <i class="fa-solid fa-rotate-left me-1"></i>重置
+        </button>
+        <button class="btn btn-sm btn-outline-warning" onclick="generateSlots()" title="生成标准时间段（周一到周日，每节1-8）">
+          <i class="fa-solid fa-clock-rotate-left me-1"></i>生成时间段
+        </button>
+        {% endif %}
+        <button class="btn btn-sm btn-outline-secondary" onclick="prevWeek()">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <span id="currentWeekLabel" class="align-self-center fw-bold text-secondary">第1周</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="nextWeek()">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- 四级级联筛选 (仅管理员可见) -->
+    {% if is_admin %}
+    <div class="card mt-3 mb-3">
+      <div class="card-body p-3">
+        <div class="row g-2 align-items-end">
+          <div class="col-12 col-sm-6 col-md-3">
+            <label class="form-label small fw-bold mb-1">
+              <i class="fa-solid fa-building me-1 text-primary"></i>学院
+            </label>
+            <select id="filterCollege" class="form-select form-select-sm" onchange="onCollegeChange()">
+              <option value="">请选择学院</option>
+            </select>
+          </div>
+          <div class="col-12 col-sm-6 col-md-3">
+            <label class="form-label small fw-bold mb-1">
+              <i class="fa-solid fa-graduation-cap me-1 text-success"></i>专业
+            </label>
+            <select id="filterMajor" class="form-select form-select-sm" onchange="onMajorChange()">
+              <option value="">请选择专业</option>
+            </select>
+          </div>
+          <div class="col-12 col-sm-6 col-md-2">
+            <label class="form-label small fw-bold mb-1">
+              <i class="fa-solid fa-calendar me-1 text-warning"></i>年级
+            </label>
+            <select id="filterGrade" class="form-select form-select-sm" onchange="onGradeChange()">
+              <option value="">请选择年级</option>
+            </select>
+          </div>
+          <div class="col-12 col-sm-6 col-md-3">
+            <label class="form-label small fw-bold mb-1">
+              <i class="fa-solid fa-users me-1 text-info"></i>班级
+            </label>
+            <select id="filterClass" class="form-select form-select-sm" onchange="onClassChange()">
+              <option value="">请选择班级</option>
+            </select>
+          </div>
+          <div class="col-12 col-sm-6 col-md-1">
+            <button class="btn btn-sm btn-outline-secondary w-100" onclick="clearFilters()" title="重置筛选">
+              <i class="fa-solid fa-rotate-right"></i>
+            </button>
+          </div>
+        </div>
+        <div id="filterStatus" class="mt-2 small text-muted"></div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- 教师/学生模式状态提示区域 -->
+    {% if is_teacher or is_student %}
+    <div class="card mt-3 mb-3">
+      <div class="card-body p-3">
+        <div id="teacherScheduleStatus" class="small text-muted">
+          <i class="fa-solid fa-spinner fa-spin me-2"></i>正在加载课程表...
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="tt-container">
+      <div class="tt-grid {% if not is_student %}zoomed{% endif %}" id="timetableGrid">
+        <!-- Header Row -->
+        <div class="tt-header">时间</div>
+        <div class="tt-header">周一</div>
+        <div class="tt-header">周二</div>
+        <div class="tt-header">周三</div>
+        <div class="tt-header">周四</div>
+        <div class="tt-header">周五</div>
+        <div class="tt-header">周六</div>
+        <div class="tt-header">周日</div>
+
+        <!-- Grid content generated by JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 编辑课程模态框 -->
+<div class="modal" id="editCourseModal" tabindex="-1"
+  style="display: none; position: fixed; z-index: 1050; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 600px; margin: auto;">
+    <div class="modal-content border-0 shadow" style="background: white; border-radius: 16px; padding: 24px;">
+      <div class="modal-header border-0 pb-2">
+        <h5 class="modal-title fw-bold" style="color: var(--text-main);">编辑课程</h5>
+        <button type="button" class="btn-close" onclick="closeEditCourse()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label fw-semibold">课程名称 <span class="text-danger">*</span></label>
+          <input type="text" id="editCourseName" class="form-control" placeholder="请输入课程名称">
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">课程类型 <span class="text-danger">*</span></label>
+          <select id="editCourseType" class="form-select">
+            <option value="required">必修</option>
+            <option value="elective">选修</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">搜索教师</label>
+          <input type="text" id="editTeacherSearch" class="form-control mb-2" placeholder="输入教师姓名或工号搜索..."
+            oninput="debounce(() => loadEditTeacherOptions(this.value), 300)()">
+        </div>
+        <div class="row mb-3">
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-semibold">筛选学院</label>
+            <select id="editTeacherCollege" class="form-select" onchange="loadEditTeacherCollegeDepts(this.value)">
+              <option value="">全部学院</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-semibold">筛选专业</label>
+            <select id="editTeacherDept" class="form-select" onchange="loadEditTeacherOptions()">
+              <option value="">全部专业</option>
+            </select>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">课程教师 <span class="text-danger">*</span></label>
+          <select id="editCourseTeacher" class="form-select">
+            <option value="">选择教师</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer border-0 pt-2">
+        <button type="button" class="btn btn-light" onclick="closeEditCourse()">取消</button>
+        <button type="button" class="btn btn-primary" onclick="saveEditCourse()">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 冲突检测模态框 -->
+<div class="modal" id="conflictModal" tabindex="-1"
+  style="display: none; position: fixed; z-index: 1050; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 700px; margin: auto;">
+    <div class="modal-content border-0 shadow" style="background: white; border-radius: 16px; padding: 24px;">
+      <div class="modal-header border-0 pb-2">
+        <h5 class="modal-title fw-bold" id="conflictModalTitle" style="color: var(--text-main);">冲突检测结果</h5>
+        <button type="button" class="btn-close" onclick="closeConflictModal()"></button>
+      </div>
+      <div class="modal-body" id="conflictModalBody">
+        <!-- 动态内容 -->
+      </div>
+      <div class="modal-footer border-0 pt-2">
+        <button type="button" class="btn btn-warning" id="optimizeConflictsBtn" onclick="optimizeConflicts()"
+          style="display:none;">
+          <i class="fa fa-magic me-1"></i>自动优化
+        </button>
+        <button type="button" class="btn btn-light" onclick="closeConflictModal()">关闭</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 统一弹窗系统 -->
+<!-- 提示框 (Alert) -->
+<div class="custom-modal" id="customAlert" style="display: none;">
+  <div class="custom-modal-backdrop"></div>
+  <div class="custom-modal-dialog">
+    <div class="custom-modal-content">
+      <div class="custom-modal-header">
+        <div class="custom-modal-icon" id="alertIcon">
+          <i class="fa-solid fa-circle-info"></i>
+        </div>
+        <h5 class="custom-modal-title" id="alertTitle">提示</h5>
+      </div>
+      <div class="custom-modal-body" id="alertMessage">
+        <!-- 动态内容 -->
+      </div>
+      <div class="custom-modal-footer">
+        <button type="button" class="btn btn-primary w-100" onclick="closeCustomAlert()">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 确认框 (Confirm) -->
+<div class="custom-modal" id="customConfirm" style="display: none;">
+  <div class="custom-modal-backdrop"></div>
+  <div class="custom-modal-dialog">
+    <div class="custom-modal-content">
+      <div class="custom-modal-header">
+        <div class="custom-modal-icon confirm-icon">
+          <i class="fa-solid fa-circle-question"></i>
+        </div>
+        <h5 class="custom-modal-title" id="confirmTitle">确认操作</h5>
+      </div>
+      <div class="custom-modal-body" id="confirmMessage">
+        <!-- 动态内容 -->
+      </div>
+      <div class="custom-modal-footer">
+        <button type="button" class="btn btn-light me-2" onclick="closeCustomConfirm(false)">取消</button>
+        <button type="button" class="btn btn-primary" onclick="closeCustomConfirm(true)">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 保存课程安排模态框 -->
+<div class="modal" id="saveScheduleModal" tabindex="-1"
+  style="display: none; position: fixed; z-index: 1050; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 500px; margin: auto;">
+    <div class="modal-content border-0 shadow" style="background: white; border-radius: 16px; padding: 24px;">
+      <div class="modal-header border-0 pb-2">
+        <h5 class="modal-title fw-bold" style="color: var(--text-main);">
+          <i class="fa-solid fa-save me-2"></i>保存课程安排
+        </h5>
+        <button type="button" class="btn-close" onclick="closeSaveScheduleModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <p class="text-muted">当前第 <span id="saveWeekNumber" class="fw-bold text-primary"></span> 的课程安排已保存。</p>
+          <p class="text-muted small">您可以选择是否将当前周的课程安排同步到其他周次。</p>
+        </div>
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" id="syncToOtherWeeks">
+          <label class="form-check-label" for="syncToOtherWeeks">
+            <strong>同步到其他周次</strong>
+            <small class="text-muted d-block mt-1" id="syncHint">勾选后将把当前周的课程安排复制到其他周次</small>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer border-0 pt-2">
+        <button type="button" class="btn btn-light" onclick="closeSaveScheduleModal()">取消</button>
+        <button type="button" class="btn btn-primary" onclick="confirmSaveSchedule()">
+          <i class="fa-solid fa-save me-1"></i>保存
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 编辑课表课程模态框 -->
+<div class="modal" id="editScheduleModal" tabindex="-1"
+  style="display: none; position: fixed; z-index: 1050; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 600px; margin: auto;">
+    <div class="modal-content border-0 shadow" style="background: white; border-radius: 16px; padding: 24px;">
+      <div class="modal-header border-0 pb-2">
+        <h5 class="modal-title fw-bold" style="color: var(--text-main);">
+          <i class="fa-solid fa-edit me-2"></i>编辑课程信息
+        </h5>
+        <button type="button" class="btn-close" onclick="closeEditSchedule()"></button>
+      </div>
+      <div class="modal-body">
+        <div id="editScheduleMsg" class="alert alert-info mb-3" style="display:none;"></div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">课程名称 <span class="text-danger">*</span></label>
+          <input type="text" id="editScheduleCourseName" class="form-control" placeholder="请输入课程名称">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">授课教师</label>
+          <input type="text" id="editScheduleTeacherSearch" class="form-control mb-2" placeholder="输入教师姓名或工号进行筛选..."
+            oninput="filterTeachersRealtime()">
+          <select id="editScheduleTeacher" class="form-select" size="6" style="max-height: 200px;">
+            <option value="">选择教师</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">教室地址</label>
+          <input type="text" id="editScheduleClassroom" class="form-control" placeholder="请输入教室地址（如：A栋101、实验楼201）">
+          <small class="text-muted">可以输入任意教室地址，留空表示待定</small>
+        </div>
+      </div>
+      <div class="modal-footer border-0 pt-2">
+        <button type="button" class="btn btn-light" onclick="closeEditSchedule()">取消</button>
+        <button type="button" class="btn btn-primary" onclick="saveEditSchedule()">
+          <i class="fa-solid fa-save me-1"></i>保存
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+  // 将用户角色信息传递给JavaScript
+  window.USER_ROLE = '{{ user_role|default:"" }}';
+  window.IS_TEACHER = {% if is_teacher %}true{% else %} false{% endif %};
+  window.IS_ADMIN = {% if is_admin %}true{% else %} false{% endif %};
+
+  // 调试：立即输出变量值
+  console.log('🔧 [脚本初始化] USER_ROLE:', window.USER_ROLE);
+  console.log('🔧 [脚本初始化] IS_TEACHER:', window.IS_TEACHER, '类型:', typeof window.IS_TEACHER);
+  console.log('🔧 [脚本初始化] IS_ADMIN:', window.IS_ADMIN, '类型:', typeof window.IS_ADMIN);
+</script>
+<script src="{% static 'js/courses/courses.js' %}?v=2.3"></script>
+{% endblock %}

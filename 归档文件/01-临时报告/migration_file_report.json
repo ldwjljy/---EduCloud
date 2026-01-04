@@ -1,0 +1,21 @@
+{
+  "generated_at": "2025-12-02T16:44:45.322482Z",
+  "source_root": "C:\\Users\\ldwjl\\Desktop\\EduCloud",
+  "target_root": "C:\\Users\\ldwjl\\Desktop\\EduCloud",
+  "source_count": 579,
+  "target_count": 579,
+  "requirements": {
+    "count_match": true,
+    "content_identical": true,
+    "permissions_preserved": true
+  },
+  "results": {
+    "count_match": true,
+    "content_identical": true,
+    "permissions_preserved": true
+  },
+  "missing_in_target": [],
+  "extra_in_target": [],
+  "mismatches": [],
+  "signature_sha256": "4e18b793cd2c73766945d3ec250c582c97e2b6a0aa3f0e2ea01fab5287fac897"
+}

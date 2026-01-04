@@ -1,0 +1,5 @@
+body{background:#f8f9fa}
+.sidebar{position:sticky;top:56px}
+.card{border:none}
+.card .card-body{padding:1rem 1.25rem}
+.calendar-placeholder{background:#f1f3f5;border-radius:.5rem}

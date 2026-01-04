@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block page_title %}日程安排{% endblock %}
+{% block page_header %}日程安排{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/dashboard/dashboard.css' %}">
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="section mb-3"><span class="badge bg-primary">日程管理</span></div>
+
+    <div class="row g-4">
+      <div class="col-md-8">
+        <div class="card border-0 shadow-sm p-4 h-100" id="eventListCard">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="card-title fw-bold">事件列表</div>
+            <div class="d-flex align-items-center gap-2" id="eventListActions">
+              <div class="form-check me-2">
+                <input id="evSelAll" class="form-check-input" type="checkbox" onclick="evSelectAll(this.checked)">
+                <label class="form-check-label" for="evSelAll">全选</label>
+              </div>
+              <button class="btn btn-outline-danger btn-sm" onclick="deleteSelectedEvents()">删除所选</button>
+              <button class="btn btn-outline-primary btn-sm" onclick="loadEvents()">刷新</button>
+            </div>
+          </div>
+          <div class="mb-3 d-flex align-items-center gap-2">
+            <input id="evQ" class="form-control" placeholder="搜索事件(标题/描述)" />
+            <div class="form-check">
+              <input id="evMine" class="form-check-input" type="checkbox" onclick="onEvMineToggle(this.checked)">
+              <label class="form-check-label" for="evMine">只看我发布</label>
+            </div>
+            <select id="evPubRole" class="form-select" style="width:auto" onchange="onEvPublisherRoleChange(this)">
+              <option value="">发布者：全部</option>
+              <option value="admin">管理员/院级</option>
+              <option value="teacher">教师/班主任</option>
+            </select>
+          </div>
+          <div id="eventList"></div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100" id="eventAdd">
+          <div class="card-title fw-bold mb-3">添加事件</div>
+          <div class="d-grid gap-3">
+            <input id="evTitle" class="form-control" placeholder="标题" />
+            <textarea id="evDesc" class="form-control" style="height:80px" placeholder="描述"></textarea>
+            <select id="evType" class="form-select">
+              <option value="campus">全校活动</option>
+              <option value="teaching">教学安排</option>
+              <option value="meeting">会议</option>
+              <option value="custom">自定义</option>
+            </select>
+            <select id="evVis" class="form-select">
+              <option value="all">全校范围</option>
+              <option value="college">学院范围</option>
+            </select>
+            <select id="evCollege" class="form-select" style="display:none"></select>
+            <input id="evStart" type="datetime-local" class="form-control" step="60" />
+            <input id="evEnd" type="datetime-local" class="form-control" step="60" />
+            <input id="evRemind" class="form-control" placeholder="提前提醒分钟" />
+            <button class="btn btn-primary" onclick="addEvent()">提交</button>
+          </div>
+          <div id="evmsg" class="mt-3 text-center"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="eventModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="eventModalTitle"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="eventModalBody" style="white-space: pre-wrap;"></div>
+        <div id="eventModalMeta" class="mt-3 text-muted small"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'js/calendar/calendar.js' %}?v=20251203-cal"></script>
+{% endblock %}

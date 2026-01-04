@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block content %}
+<form method="post" class="card shadow-sm">
+    {% csrf_token %}
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-4"><label class="form-label">名称</label>{{ form.name }}</div>
+            <div class="col-md-4"><label class="form-label">位置</label>{{ form.location }}</div>
+            <div class="col-md-4"><label class="form-label">容量</label>{{ form.capacity }}</div>
+            <div class="col-md-4"><label class="form-label">状态</label>{{ form.status }}</div>
+        </div>
+    </div>
+    <div class="card-footer bg-white d-flex gap-2">
+        <button class="btn btn-primary" type="submit">保存</button>
+        <a class="btn btn-outline-secondary" href="/classrooms/">返回</a>
+    </div>
+</form>
+{% endblock %}

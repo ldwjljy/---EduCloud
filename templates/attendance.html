@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block page_title %}考勤管理{% endblock %}
+{% block page_header %}考勤管理{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/dashboard/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/management/management.css' %}">
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="section mb-3"><span class="badge bg-primary">考勤管理</span></div>
+    <div class="alert alert-info mb-3" role="alert" id="att-info" style="display:none;">
+      <i class="bi bi-info-circle"></i> <strong>提示：</strong>选择课程和日期后，系统会自动为该课程的所有学生生成默认"正常"考勤记录。如有学生考勤异常，请在下拉框中修改其状态。
+    </div>
+    <div class="card border-0 shadow-sm p-4">
+      <div class="row g-3 align-items-center mb-4">
+        <div class="col-md-2">
+          <select id="att-schedule" class="form-select">
+            <option value="">选择课程</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <input id="att-q" class="form-control" placeholder="搜索学生..." />
+        </div>
+        <div class="col-md-2">
+          <select id="att-college" class="form-select">
+            <option value="">选择学院</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <select id="att-dept" class="form-select">
+            <option value="">选择专业</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <select id="att-class" class="form-select">
+            <option value="">选择班级</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <select id="att-student" class="form-select">
+            <option value="">全部学生</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <input id="att-date" type="date" class="form-control" />
+        </div>
+        <div class="col-md-2">
+          <select id="att-status" class="form-select">
+            <option value="">全部状态</option>
+            <option value="present">正常</option>
+            <option value="late">迟到</option>
+            <option value="absent">缺勤</option>
+            <option value="leave">请假</option>
+          </select>
+        </div>
+        <div class="col-md-auto">
+          <button class="btn btn-primary" onclick="renderAttendance()">查询</button>
+          <button class="btn btn-outline-primary ms-2" onclick="markAllPresent()" id="btn-mark-all" style="display:none;">本日全部正常</button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead class="table-light">
+            <tr>
+              <th>学号</th>
+              <th>姓名</th>
+              <th>课程</th>
+              <th>学院</th>
+              <th>专业</th>
+              <th>班级</th>
+              <th>考勤状态</th>
+              <th>备注</th>
+            </tr>
+          </thead>
+          <tbody id="att-rows"></tbody>
+        </table>
+      </div>
+      <div id="att-total" class="text-muted small mt-2"></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'js/attendance/attendance.js' %}"></script>
+{% endblock %}

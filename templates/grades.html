@@ -1,0 +1,348 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block page_title %}成绩管理{% endblock %}
+{% block page_header %}成绩管理{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/management/grades.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="grades-management-container">
+    <!-- 顶部统计卡片区域保留容器，去掉内部统计内容 -->
+    <div id="statisticsSection" class="statistics-section" style="display: none;"></div>
+
+    <!-- 筛选区域 -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-filter me-2"></i>筛选条件
+                </h5>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="resetFilters()">
+                        <i class="fas fa-redo me-1"></i>重置
+                    </button>
+                </div>
+            </div>
+            
+            <div class="row g-3">
+                <!-- 学院筛选 - 管理员可见 -->
+                <div class="col-md-3" id="collegeFilterDiv" style="display: none;">
+                    <label class="form-label">学院</label>
+                    <select id="collegeFilter" class="form-select" onchange="onCollegeChange()">
+                        <option value="">全部学院</option>
+                    </select>
+                </div>
+                
+                <!-- 专业筛选 -->
+                <div class="col-md-3" id="majorFilterDiv" style="display: none;">
+                    <label class="form-label">专业</label>
+                    <select id="majorFilter" class="form-select" onchange="onMajorChange()">
+                        <option value="">全部专业</option>
+                    </select>
+                </div>
+                
+                <!-- 班级筛选 -->
+                <div class="col-md-3" id="classFilterDiv" style="display: none;">
+                    <label class="form-label">班级</label>
+                    <select id="classFilter" class="form-select" onchange="loadGrades()">
+                        <option value="">全部班级</option>
+                    </select>
+                </div>
+                
+                <!-- 课程筛选 -->
+                <div class="col-md-3" id="courseFilterDiv">
+                    <label class="form-label">课程</label>
+                    <select id="courseFilter" class="form-select" onchange="loadGrades()">
+                        <option value="">全部课程</option>
+                    </select>
+                </div>
+                
+                <!-- 学生搜索 -->
+                <div class="col-md-3" id="studentSearchDiv">
+                    <label class="form-label">学生姓名/学号</label>
+                    <input type="text" id="studentSearch" class="form-control" placeholder="输入搜索..." oninput="onStudentSearchChange()">
+                </div>
+                
+                <!-- 及格状态筛选 -->
+                <div class="col-md-3">
+                    <label class="form-label">成绩状态</label>
+                    <select id="passedFilter" class="form-select" onchange="loadGrades()">
+                        <option value="">全部</option>
+                        <option value="excellent">优秀 (≥90分)</option>
+                        <option value="passed">及格 (60-89分)</option>
+                        <option value="failed">不及格 (<60分)</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-3 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" onclick="loadGrades()">
+                        <i class="fas fa-search me-1"></i>查询
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 操作按钮区 - 教师/管理员可见 -->
+    <div class="card shadow-sm mb-4" id="actionButtons" style="display: none;">
+        <div class="card-body">
+            <div class="d-flex gap-2 flex-wrap">
+                <button class="btn btn-success" onclick="showAddGradeModal()">
+                    <i class="fas fa-plus me-1"></i>录入成绩
+                </button>
+                <button class="btn btn-info" onclick="showBatchAddModal()">
+                    <i class="fas fa-file-import me-1"></i>批量导入
+                </button>
+                <button class="btn btn-warning" onclick="exportGrades()">
+                    <i class="fas fa-file-export me-1"></i>导出成绩
+                </button>
+                <button class="btn btn-primary" id="viewStatisticsBtn" onclick="showStatisticsModal()" style="display: none;">
+                    <i class="fas fa-chart-bar me-1"></i>查看统计
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 成绩列表 -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-list me-2"></i>成绩列表
+                </h5>
+                <div>
+                    <span class="badge bg-secondary">共 <span id="totalCount">0</span> 条记录</span>
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>学号</th>
+                            <th>姓名</th>
+                            <th>班级</th>
+                            <th>课程名称</th>
+                            <th>课程类型</th>
+                            <th>成绩</th>
+                            <th>状态</th>
+                            <th class="text-center" id="actionHeader" style="display: none;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gradeTableBody">
+                        <tr>
+                            <td colspan="9" class="text-center text-muted py-5">
+                                <i class="fas fa-inbox fa-3x mb-3"></i>
+                                <p>暂无数据</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 数据统计 -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div class="text-muted small">
+                    共 <span id="pageTotal">0</span> 条记录
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 添加/编辑成绩模态框 -->
+<div class="modal fade" id="gradeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="gradeModalTitle">录入成绩</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="gradeForm">
+                    <input type="hidden" id="gradeId">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">学生 <span class="text-danger">*</span></label>
+                        <select id="gradeStudent" class="form-select" required>
+                            <option value="">请选择学生</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">课程 <span class="text-danger">*</span></label>
+                        <select id="gradeCourse" class="form-select" required>
+                            <option value="">请选择课程</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">成绩 <span class="text-danger">*</span></label>
+                        <input type="number" id="gradeScore" class="form-control" min="0" max="100" step="0.01" required placeholder="0-100">
+                    </div>
+                    
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="saveGrade()">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 批量导入模态框 -->
+<div class="modal fade" id="batchAddModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">批量导入成绩</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>导入说明：</strong>请按照模板格式填写数据，每行一条记录。
+                    <br>格式：学生ID,课程ID,成绩
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">上传文件 (CSV/Excel)</label>
+                    <input type="file" class="form-control" id="batchFile" accept=".csv,.xlsx,.xls">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">或直接粘贴数据</label>
+                    <textarea id="batchData" class="form-control" rows="10" placeholder="示例：&#10;1,5,85.5,4.0&#10;2,5,92,4.5"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="batchImport()">导入</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 统计数据模态框 -->
+<div class="modal fade" id="statisticsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">成绩统计分析</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">统计维度</label>
+                        <select id="statsLevel" class="form-select" onchange="loadStatistics()">
+                            <option value="college">按学院统计</option>
+                            <option value="major">按专业统计</option>
+                            <option value="class">按班级统计</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4" id="statsCollegeDiv">
+                        <label class="form-label">学院筛选</label>
+                        <select id="statsCollege" class="form-select" onchange="loadStatistics()">
+                            <option value="">全部学院</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4" id="statsMajorDiv" style="display: none;">
+                        <label class="form-label">专业筛选</label>
+                        <select id="statsMajor" class="form-select" onchange="loadStatistics()">
+                            <option value="">全部专业</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>名称</th>
+                                <th>学生总数</th>
+                                <th>成绩记录数</th>
+                                <th>平均分</th>
+                                <th>及格率</th>
+                                <th>优秀率</th>
+                                <th>良好率</th>
+                                <th>及格人数</th>
+                                <th>不及格人数</th>
+                            </tr>
+                        </thead>
+                        <tbody id="statisticsTableBody">
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-4">加载中...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="exportStatistics()">导出统计数据</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 班主任班级成绩查看模态框 -->
+<div class="modal fade" id="classGradesModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">班级成绩查看</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">课程筛选</label>
+                        <select id="classGradeCourseFilter" class="form-select" onchange="loadClassGrades()">
+                            <option value="">全部课程</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">及格状态</label>
+                        <select id="classGradePassFilter" class="form-select" onchange="loadClassGrades()">
+                            <option value="">全部</option>
+                            <option value="true">及格</option>
+                            <option value="false">不及格</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">学生搜索</label>
+                        <input type="text" id="classGradeStudentSearch" class="form-control" placeholder="输入学生姓名...">
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>学号</th>
+                                <th>姓名</th>
+                                <th>课程</th>
+                                <th>成绩</th>
+                                <th>状态</th>
+                            </tr>
+                        </thead>
+                        <tbody id="classGradesTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/grades/grades.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,266 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block page_title %}教师管理{% endblock %}
+{% block page_header %}教师管理{% endblock %}
+{% block head %}
+<style>
+  /* Local styles to keep existing JS working without full refactor */
+  .input {
+    background-color: #f4f7fe;
+    border: 1px solid transparent;
+    border-radius: 16px;
+    padding: 10px 15px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .input:focus {
+    background-color: #fff;
+    border-color: var(--accent-color);
+    outline: none;
+  }
+
+  /* 响应式模态框样式 */
+  #classModal .modal-dialog {
+    max-width: 95%;
+    margin: 0.5rem;
+  }
+
+  @media (min-width: 576px) {
+    #classModal .modal-dialog {
+      max-width: 540px;
+      margin: 1rem auto;
+    }
+  }
+
+  @media (min-width: 768px) {
+    #classModal .modal-dialog {
+      max-width: 720px;
+    }
+  }
+
+  @media (min-width: 992px) {
+    #classModal .modal-dialog {
+      max-width: 900px;
+    }
+  }
+
+  /* 确保模态框在小屏幕上可以滚动 */
+  #classModal .modal-body {
+    max-height: calc(100vh - 140px);
+    overflow-y: auto;
+  }
+
+  /* 移动端卡片样式优化 */
+  @media (max-width: 767.98px) {
+    #classModal .modal-body {
+      padding: 1rem !important;
+    }
+
+    #classModal .card {
+      border-radius: 12px;
+      transition: all 0.2s ease;
+    }
+
+    #classModal .card:active {
+      transform: scale(0.98);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    }
+
+    #classModalInfo {
+      font-size: 0.875rem;
+    }
+  }
+
+  /* 桌面端表格样式优化 */
+  @media (min-width: 768px) {
+    #classModal .table th {
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 0.75rem 0.5rem;
+    }
+
+    #classModal .table td {
+      padding: 0.75rem 0.5rem;
+      vertical-align: middle;
+    }
+
+    #classModal .table tbody tr {
+      transition: background-color 0.2s ease;
+    }
+
+    #classModal .table tbody tr:hover {
+      background-color: rgba(var(--bs-primary-rgb), 0.05);
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-header bg-white border-0 pt-4 px-4">
+    <h5 class="fw-bold text-primary"><i class="fa-solid fa-plus-circle me-2"></i>快速添加教师</h5>
+  </div>
+  <div class="card-body p-4">
+    <div class="row g-2 align-items-center">
+      <div class="col-md"><input id="tea-add-id" class="form-control" placeholder="工号 *" required /></div>
+      <div class="col-md"><input id="tea-add-name" class="form-control" placeholder="姓名 *" required /></div>
+      <div class="col-md">
+        <select id="tea-add-role" class="form-select" onchange="toggleAddClass(this.value)" required>
+          <option value="">选择职务 *</option>
+          <option value="teacher">教师</option>
+          <option value="head_teacher">班主任</option>
+          <option value="dean">院长</option>
+          <option value="vice_dean">副院长</option>
+          <option value="principal">校长</option>
+          <option value="vice_principal">副校长</option>
+        </select>
+      </div>
+      <div class="col-md"><select id="tea-add-college" class="form-select"><option value="">选择学院</option></select></div>
+      <div class="col-md"><select id="tea-add-dept" class="form-select"><option value="">选择专业</option></select></div>
+      <div class="col-md" id="tea-add-class-container" style="display:none;">
+          <select id="tea-add-class" class="form-select"><option value="">选择班级</option></select>
+      </div>
+      <div class="col-md"><input id="tea-add-phone" class="form-control" placeholder="联系电话" /></div>
+      <div class="col-auto"><button class="btn btn-primary" onclick="addTeacher()"><i class="fa-solid fa-plus"></i></button></div>
+    </div>
+    <div id="tea-add-msg" class="mt-2 small text-muted"></div>
+    <div class="mt-2 small text-secondary">
+      <i class="fa-solid fa-info-circle"></i> 提示：
+      <ul class="mb-0 ps-3">
+        <li>教师：必填工号、姓名</li>
+        <li>班主任：必填工号、姓名、学院-专业、联系电话、班级</li>
+        <li>院长/副院长：必填工号、姓名、学院</li>
+        <li>校长/副校长：必填工号、姓名</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+  <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+    <h5 class="fw-bold text-primary"><i class="fa-solid fa-chalkboard-user me-2"></i>教师列表</h5>
+  </div>
+  <div class="card-body p-4">
+    <div class="row g-2 mb-3">
+      <div class="col-md-4">
+        <div class="input-group">
+          <span class="input-group-text bg-light border-0"><i class="fa-solid fa-search"></i></span>
+          <input id="tea-q" class="form-control bg-light border-0" placeholder="搜索教师姓名/工号..." />
+        </div>
+      </div>
+      <div class="col-md-3">
+        <select id="tea-college" class="form-select bg-light border-0">
+          <option value="">全部学院</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <select id="tea-dept" class="form-select bg-light border-0">
+          <option value="">全部专业</option>
+        </select>
+      </div>
+      <div class="col-auto">
+        <button class="btn btn-primary" onclick="searchTeachers()">查询</button>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table align-middle table-hover mb-0">
+        <thead class="bg-light">
+          <tr>
+            <th class="ps-3">工号</th>
+            <th>姓名</th>
+            <th>职务</th>
+            <th>学院</th>
+            <th>专业</th>
+            <th>联系方式</th>
+            <th>管理班级</th>
+            <th class="text-end pe-3">操作</th>
+          </tr>
+        </thead>
+        <tbody id="tea-rows"></tbody>
+      </table>
+    </div>
+    <div id="tea-total" class="mt-3 text-secondary small"></div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal" id="editModal" tabindex="-1" style="display: none; background: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" id="editTitle">编辑</h5>
+                <button type="button" class="btn-close" onclick="closeEdit()"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div id="editMsg" class="text-danger mb-3"></div>
+                <div id="editForm"></div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light" onclick="closeEdit()">取消</button>
+                <button type="button" class="btn btn-primary" onclick="saveEdit()">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Class Students Modal -->
+<div class="modal" id="classModal" tabindex="-1" style="display: none; background: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0 pb-2">
+                <h5 class="modal-title fw-bold" id="classModalTitle">班级学生列表</h5>
+                <button type="button" class="btn-close" onclick="closeClassModal()"></button>
+            </div>
+            <div class="modal-body p-3 p-md-4">
+                <!-- Header Info and Actions -->
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-3">
+                    <span id="classModalInfo" class="text-secondary fw-bold"></span>
+                    <button class="btn btn-success btn-sm w-100 w-sm-auto" onclick="exportClassStudents()">
+                        <i class="fa-solid fa-file-excel me-1"></i>导出Excel
+                    </button>
+                </div>
+
+                <!-- Desktop Table View (hidden on mobile) -->
+                <div class="table-responsive d-none d-md-block">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-3">学号</th>
+                                <th>姓名</th>
+                                <th>性别</th>
+                                <th>联系电话</th>
+                                <th class="pe-3">状态</th>
+                            </tr>
+                        </thead>
+                        <tbody id="classModalBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Mobile Card View (visible only on mobile) -->
+                <div class="d-md-none" id="classModalBodyMobile">
+                </div>
+
+                <!-- Loading State -->
+                <div id="classModalLoading" class="text-center py-4" style="display:none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="text-muted mt-2 mb-0 small">加载中...</p>
+                </div>
+
+                <!-- Error State -->
+                <div id="classModalError" class="alert alert-danger text-center py-3 mb-0" role="alert" style="display:none;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'vendor/sheetjs/xlsx.full.min.js' %}"></script>
+<script src="{% static 'js/teachers/teachers.js' %}"></script>
+{% endblock %}

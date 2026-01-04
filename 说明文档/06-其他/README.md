@@ -1,0 +1,199 @@
+# 📚 EduCloud 说明文档索引
+
+本文件夹包含 EduCloud 教育管理系统的所有说明文档。
+
+## 📑 文档分类
+
+### 🎓 课程管理相关
+
+#### 最新文档（推荐阅读）
+- **[双击编辑课程功能说明.md](./双击编辑课程功能说明.md)** ⭐ 🆕
+  - 双击课表课程快速编辑功能
+  - 支持修改课程名称、授课教师、教室地址
+  - 适合：所有用户（强烈推荐！）
+
+- **[统一弹窗系统说明.md](./统一弹窗系统说明.md)** ⭐ 🆕
+  - 全新美观的提示和确认弹窗系统
+  - 替代浏览器原生弹窗，提升用户体验
+  - 适合：开发人员和用户
+
+- **[README_课程列表拖拽.md](./README_课程列表拖拽.md)** ⭐ 🆕
+  - 课程列表拖拽功能快速上手指南
+  - 三步完成排课，简单直观
+  - 适合：所有用户（强烈推荐！）
+
+- **[课程列表拖拽功能说明.md](./课程列表拖拽功能说明.md)** ⭐ 🆕
+  - 课程列表拖拽功能详细说明
+  - 包含使用方法、技巧、常见问题
+  - 适合：所有用户
+
+- **[课程管理使用指南.md](./课程管理使用指南.md)** ⭐
+  - 课程管理系统完整使用指南
+  - 包含搜索、编辑、智能排课、冲突检测等功能
+  - 适合：所有用户
+
+- **[COURSE_MANAGEMENT_ENHANCEMENT_SUMMARY.md](./COURSE_MANAGEMENT_ENHANCEMENT_SUMMARY.md)** ⭐
+  - 课程管理系统技术实现总结
+  - 详细的API文档和代码说明
+  - 适合：开发人员
+
+#### 其他课程相关文档
+- **[COURSE_WORKFLOW_DIAGRAM.md](./COURSE_WORKFLOW_DIAGRAM.md)**
+  - 课程管理工作流程图
+  - 系统架构说明
+
+- **[COURSE_MANAGEMENT_DESIGN.md](./COURSE_MANAGEMENT_DESIGN.md)**
+  - 课程管理系统设计文档
+
+- **[CROSS_COLLEGE_TEACHING.md](./CROSS_COLLEGE_TEACHING.md)**
+  - 跨学院授课功能说明
+
+- **[CROSS_COLLEGE_UPDATE.md](./CROSS_COLLEGE_UPDATE.md)**
+  - 跨学院功能更新日志
+
+### 👥 教师管理相关
+
+- **[TEACHER_FIELD_VALIDATION_SUMMARY.md](./TEACHER_FIELD_VALIDATION_SUMMARY.md)** ⭐
+  - 教师管理字段验证规则实现总结
+  - 不同角色（教师、班主任、院长、校长）的必填字段说明
+  - 适合：管理员和开发人员
+
+### 📅 课表导入相关
+
+- **[SCHEDULE_IMPORT_2023502701.md](./SCHEDULE_IMPORT_2023502701.md)**
+  - 特定班级课表导入说明
+
+- **[README_IMPORT_SCHEDULE.md](./README_IMPORT_SCHEDULE.md)**
+  - 课表导入通用说明
+
+### 🔧 问题修复文档
+
+#### 课程表筛选修复
+- **[CLASS_FILTER_FIX.md](./CLASS_FILTER_FIX.md)**
+  - 班级筛选功能修复说明
+
+- **[FILTER_FIX_SUMMARY.md](./FILTER_FIX_SUMMARY.md)**
+  - 筛选功能修复总结
+
+- **[QUICK_FIX_班级筛选.md](./QUICK_FIX_班级筛选.md)**
+  - 班级筛选快速修复指南
+
+- **[TROUBLESHOOTING_FILTERS.md](./TROUBLESHOOTING_FILTERS.md)**
+  - 筛选功能故障排查
+
+- **[验证清单_课程表筛选修复.md](./验证清单_课程表筛选修复.md)**
+  - 课程表筛选修复验证清单
+
+#### 其他修复文档
+- **[所有问题已修复_最终总结.md](./所有问题已修复_最终总结.md)**
+  - 所有问题修复的最终总结
+
+- **[修复_API数据格式问题.md](./修复_API数据格式问题.md)**
+  - API数据格式问题修复
+
+- **[最终修复_初始化冲突.md](./最终修复_初始化冲突.md)**
+  - 初始化冲突问题修复
+
+- **[额外修复_课程序列化器错误.md](./额外修复_课程序列化器错误.md)**
+  - 课程序列化器错误修复
+
+- **[完整修复总结.md](./完整修复总结.md)**
+  - 完整的修复历史总结
+
+### 📖 系统设计与参考
+
+- **[IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md)**
+  - 系统实现总结
+
+- **[design_specs.md](./design_specs.md)**
+  - 系统设计规范
+
+- **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)**
+  - 快速参考指南
+
+## 🚀 快速开始
+
+### 新用户推荐阅读顺序
+
+1. **[课程管理使用指南.md](./课程管理使用指南.md)** - 了解课程管理功能
+2. **[TEACHER_FIELD_VALIDATION_SUMMARY.md](./TEACHER_FIELD_VALIDATION_SUMMARY.md)** - 了解教师管理规则
+
+### 开发人员推荐阅读顺序
+
+1. **[design_specs.md](./design_specs.md)** - 了解系统设计
+2. **[COURSE_MANAGEMENT_ENHANCEMENT_SUMMARY.md](./COURSE_MANAGEMENT_ENHANCEMENT_SUMMARY.md)** - 了解课程管理实现
+3. **[IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md)** - 了解整体实现
+
+### 管理员推荐阅读顺序
+
+1. **[课程管理使用指南.md](./课程管理使用指南.md)** - 掌握课程管理
+2. **[TEACHER_FIELD_VALIDATION_SUMMARY.md](./TEACHER_FIELD_VALIDATION_SUMMARY.md)** - 掌握教师管理
+3. **[TROUBLESHOOTING_FILTERS.md](./TROUBLESHOOTING_FILTERS.md)** - 学会问题排查
+
+## 📊 文档统计
+
+- **总文档数**: 25个
+- **使用指南**: 4个
+- **技术文档**: 8个
+- **修复文档**: 9个
+- **设计文档**: 4个
+
+## 🔍 按主题查找文档
+
+### 想要了解...
+
+- **如何快速编辑课程？** → `双击编辑课程功能说明.md` 🆕
+- **如何拖拽排课？** → `README_课程列表拖拽.md` 🆕
+- **如何使用课程列表？** → `课程列表拖拽功能说明.md` 🆕
+- **如何使用课程管理？** → `课程管理使用指南.md`
+- **如何添加教师？** → `TEACHER_FIELD_VALIDATION_SUMMARY.md`
+- **如何智能排课？** → `课程管理使用指南.md` 第五章
+- **如何检测冲突？** → `课程管理使用指南.md` 第六章
+- **如何导入课表？** → `README_IMPORT_SCHEDULE.md`
+- **系统架构是什么？** → `design_specs.md`
+- **遇到筛选问题？** → `TROUBLESHOOTING_FILTERS.md`
+
+## 📝 文档更新日志
+
+### 2025-12-09 (深夜更新 #2)
+- 🆕 新增 `双击编辑课程功能说明.md` - 双击课程快速编辑
+- ✅ 新增双击编辑课表课程功能
+- ✅ 支持修改课程名称、授课教师、教室地址
+- ✅ 添加 `classroom_name` 字段支持自定义教室地址
+
+### 2025-12-09 (深夜更新 #1)
+- 🆕 新增 `统一弹窗系统说明.md` - 美观的自定义弹窗系统
+- ✅ 替换所有浏览器原生弹窗为自定义模态框
+- ✅ 支持4种弹窗类型：信息、成功、警告、错误
+
+### 2025-12-09 (晚间更新)
+- 🆕 新增 `README_课程列表拖拽.md` - 快速上手指南
+- 🆕 新增 `课程列表拖拽功能说明.md` - 详细功能说明
+- ✅ 新增课程列表拖拽功能到课程管理界面
+
+### 2025-12-09
+- ✅ 新增 `课程管理使用指南.md`
+- ✅ 新增 `COURSE_MANAGEMENT_ENHANCEMENT_SUMMARY.md`
+- ✅ 新增 `TEACHER_FIELD_VALIDATION_SUMMARY.md`
+- ✅ 整理所有文档到"说明文档"文件夹
+
+### 历史文档
+- 包含系统开发过程中的各种修复和更新文档
+- 保留用于问题追溯和历史参考
+
+## 💡 提示
+
+- ⭐ 标记的文档是最重要和最新的文档
+- 建议优先阅读标记为⭐的文档
+- 遇到问题先查看对应的故障排查文档
+- 所有文档均支持Markdown格式，建议使用支持Markdown的阅读器
+
+## 📮 反馈
+
+如有文档相关问题或建议，请联系系统管理员。
+
+---
+
+**最后更新**: 2025年12月9日  
+**文档版本**: v2.0
+

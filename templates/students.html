@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block page_title %}学生管理{% endblock %}
+{% block page_header %}学生管理{% endblock %}
+{% block head %}
+<!-- Remove old css -->
+<style>
+    /* Local styles to keep existing JS working without full refactor */
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .input {
+        background-color: #f4f7fe;
+        border: 1px solid transparent;
+        border-radius: 16px;
+        padding: 10px 15px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .input:focus {
+        background-color: #fff;
+        border-color: var(--accent-color);
+        outline: none;
+    }
+
+    /* 响应式模态框样式 */
+    #editModal .modal-dialog {
+        max-width: 90%;
+        margin: 1rem auto;
+    }
+
+    @media (min-width: 576px) {
+        #editModal .modal-dialog {
+            max-width: 500px;
+        }
+    }
+
+    @media (min-width: 768px) {
+        #editModal .modal-dialog {
+            max-width: 600px;
+        }
+    }
+
+    /* 确保模态框在小屏幕上可以滚动 */
+    #editModal .modal-body {
+        max-height: calc(100vh - 200px);
+        overflow-y: auto;
+    }
+
+    /* 表单标签和输入框在小屏幕上的优化 */
+    @media (max-width: 575.98px) {
+        #editModal .form-label {
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        #editModal .form-control,
+        #editModal .form-select {
+            font-size: 0.875rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="studentsPanel" class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0 pt-4 px-4">
+        <h5 class="fw-bold text-primary"><i class="fa-solid fa-user-graduate me-2"></i>学生列表</h5>
+    </div>
+    <div class="card-body p-4">
+        <!-- Add Student Form -->
+        <div class="bg-light p-3 rounded-4 mb-4">
+            <h6 class="fw-bold mb-3 text-secondary">快速添加学生 <span class="text-muted small">(学号将自动生成)</span></h6>
+            <div class="row g-2 align-items-center">
+                <div class="col-md"><input id="stu-add-name" class="form-control" placeholder="姓名 *" required /></div>
+                <div class="col-md">
+                    <select id="stu-add-gender" class="form-select">
+                        <option value="">选择性别（可选）</option>
+                        <option value="male">男</option>
+                        <option value="female">女</option>
+                    </select>
+                </div>
+                <div class="col-md"><select id="stu-add-college" class="form-select" required>
+                        <option value="">选择学院 *</option>
+                    </select></div>
+                <div class="col-md"><select id="stu-add-dept" class="form-select" required>
+                        <option value="">选择专业 *</option>
+                    </select></div>
+                <div class="col-md"><select id="stu-add-klass" class="form-select" required>
+                        <option value="">选择班级 *</option>
+                    </select></div>
+                <div class="col-md"><input id="stu-add-phone" class="form-control" placeholder="联系电话（可选）" /></div>
+                <div class="col-auto"><button class="btn btn-primary" onclick="addStudent()"><i
+                            class="fa-solid fa-plus"></i> 添加</button></div>
+            </div>
+            <div id="stu-add-msg" class="mt-2 small"></div>
+        </div>
+
+        <!-- Search & Filter -->
+        <div class="row g-2 mb-3">
+            <div class="col-md-3"><input id="stu-q" class="form-control" placeholder="搜索学生姓名/学号..." /></div>
+            <div class="col-md-1">
+                <select id="stu-status" class="form-select">
+                    <option value="">全部状态</option>
+                    <option value="在读">在读</option>
+                    <option value="休学">休学</option>
+                    <option value="毕业">毕业</option>
+                </select>
+            </div>
+            <div class="col-md-2"><select id="stu-college" class="form-select">
+                    <option value="">全部学院</option>
+                </select></div>
+            <div class="col-md-2"><select id="stu-dept" class="form-select">
+                    <option value="">全部专业</option>
+                </select></div>
+            <div class="col-md-2"><select id="stu-klass" class="form-select">
+                    <option value="">全部班级</option>
+                </select></div>
+            <div class="col-md-auto">
+                <button class="btn btn-outline-primary" onclick="searchStudents()">查询</button>
+                <button class="btn btn-outline-warning" onclick="openBulkEditModal()">
+                    <i class="fa-solid fa-pen-to-square me-1"></i>批量修改
+                </button>
+                <button class="btn btn-success" onclick="openExportModal()">
+                    <i class="fa-solid fa-file-excel me-1"></i>导出
+                </button>
+                <button class="btn btn-info text-white" onclick="document.getElementById('importFile').click()">
+                    <i class="fa-solid fa-file-import me-1"></i>导入
+                </button>
+                <input type="file" id="importFile" accept=".xlsx,.xls" style="display: none;" onchange="importStudents(this)">
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table align-middle table-hover mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-3" style="width: 40px;">
+                            <input type="checkbox" class="form-check-input" id="check-all" onchange="toggleAll(this)">
+                        </th>
+                        <th>学号</th>
+                        <th>姓名</th>
+                        <th>性别</th>
+                        <th>班级</th>
+                        <th>状态</th>
+                        <th>联系方式</th>
+                        <th class="text-end pe-3">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="stu-rows"></tbody>
+            </table>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div id="stu-total" class="text-secondary small"></div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination pagination-sm mb-0" id="stu-pagination">
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Edit Modal -->
+<div class="modal" id="bulkEditModal" tabindex="-1" style="display: none; background: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">批量修改班级</h5>
+                <button type="button" class="btn-close" onclick="closeBulkEditModal()"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div id="bulkEditInfo" class="text-secondary mb-3"></div>
+                <div class="mb-3">
+                    <label class="form-label">选择目标学院</label>
+                    <select id="bulk-college" class="form-select" onchange="loadBulkDepts()">
+                        <option value="">请选择学院</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">选择目标专业</label>
+                    <select id="bulk-dept" class="form-select" onchange="loadBulkClasses()">
+                        <option value="">请选择专业</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">选择目标班级</label>
+                    <select id="bulk-klass" class="form-select">
+                        <option value="">请选择班级</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">修改状态</label>
+                    <select id="bulk-status" class="form-select">
+                        <option value="">不修改</option>
+                        <option value="在读">在读</option>
+                        <option value="休学">休学</option>
+                        <option value="毕业">毕业</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light" onclick="closeBulkEditModal()">取消</button>
+                <button type="button" class="btn btn-warning" onclick="confirmBulkEdit()">确认修改</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal" id="exportModal" tabindex="-1" style="display: none; background: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">导出筛选</h5>
+                <button type="button" class="btn-close" onclick="closeExportModal()"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="mb-3">
+                    <label class="form-label">学院（可多选）</label>
+                    <select id="export-college" class="form-select" multiple style="height: 120px;" onchange="loadExportDepts()">
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">专业（可多选）</label>
+                    <select id="export-dept" class="form-select" multiple style="height: 120px;" onchange="loadExportClasses()">
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">班级（可多选）</label>
+                    <select id="export-klass" class="form-select" multiple style="height: 120px;">
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light" onclick="closeExportModal()">取消</button>
+                <button type="button" class="btn btn-success" onclick="confirmExport()">开始导出</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal" id="editModal" tabindex="-1" style="display: none; background: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" id="editTitle">编辑</h5>
+                <button type="button" class="btn-close" onclick="closeEdit()"></button>
+            </div>
+            <div class="modal-body p-3 p-md-4">
+                <div id="editMsg" class="text-danger mb-3 small"></div>
+                <div id="editForm"></div>
+            </div>
+            <div class="modal-footer border-0 flex-column flex-sm-row gap-2">
+                <button type="button" class="btn btn-light w-100 w-sm-auto" onclick="closeEdit()">取消</button>
+                <button type="button" class="btn btn-primary w-100 w-sm-auto" onclick="saveEdit()">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'vendor/sheetjs/xlsx.full.min.js' %}"></script>
+<script src="{% static 'js/students/students.js' %}"></script>
+{% endblock %}

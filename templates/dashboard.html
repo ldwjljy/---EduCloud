@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}仪表盘{% endblock %}
+{% block page_header %}仪表盘{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* 为了让传统dashboard正常显示，我们需要重置一些样式 */
+    body.traditional-dashboard {
+        background: var(--bg, #f5f7fa) !important;
+    }
+    
+    /* 智能分析模态窗口样式 */
+    #aiAnalysisModal .modal-content {
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    #aiAnalysisModal .modal-header {
+        border-bottom: 1px solid #e9ecef;
+        padding: 20px 24px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 16px 16px 0 0;
+    }
+    
+    #aiAnalysisModal .modal-header .btn-close {
+        filter: brightness(0) invert(1);
+    }
+    
+    #aiAnalysisModal .modal-body {
+        padding: 24px;
+        max-height: 70vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        background: #f8f9fa;
+    }
+    
+    /* 自定义滚动条样式 - Webkit浏览器（Chrome, Safari, Edge） */
+    #aiAnalysisModal .modal-body::-webkit-scrollbar {
+        width: 10px;
+    }
+    
+    #aiAnalysisModal .modal-body::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+        margin: 8px 0;
+    }
+    
+    #aiAnalysisModal .modal-body::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
+        border: 2px solid #f1f1f1;
+    }
+    
+    #aiAnalysisModal .modal-body::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #5568d3 0%, #653a8f 100%);
+    }
+    
+    /* Firefox滚动条样式 */
+    #aiAnalysisModal .modal-body {
+        scrollbar-width: thin;
+        scrollbar-color: #667eea #f1f1f1;
+    }
+    
+    #aiAnalysisReport {
+        font-size: 15px;
+        line-height: 1.8;
+        color: #2d3748;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    }
+    
+    #aiAnalysisReport .typing-cursor {
+        display: inline-block;
+        width: 2px;
+        height: 1.2em;
+        background: #667eea;
+        animation: blink 1s infinite;
+        margin-left: 2px;
+        vertical-align: middle;
+    }
+    
+    @keyframes blink {
+        0%, 50% { opacity: 1; }
+        51%, 100% { opacity: 0; }
+    }
+    
+    #aiAnalysisModal .modal-footer {
+        border-top: 1px solid #e9ecef;
+        padding: 16px 24px;
+        background: white;
+        border-radius: 0 0 16px 16px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Dashboard Toolbar -->
+<div class="row mb-4">
+    <div class="col-md-12 text-end">
+        <button class="btn btn-primary" onclick="claimMyData()">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> 智能分析
+        </button>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <select id="dashFilterCollege" class="form-select bg-white">
+            <option value="">筛选学院</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select id="dashFilterDept" class="form-select bg-white">
+            <option value="">筛选专业</option>
+        </select>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fa-solid fa-user-graduate"></i>
+        </div>
+        <div class="stat-info">
+            <h3 id="dStu">--</h3>
+            <p id="labelStu">在校学生总数</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="color: #ff7b7b; background-color: rgba(255, 123, 123, 0.1);">
+            <i class="fa-solid fa-chalkboard-user"></i>
+        </div>
+        <div class="stat-info">
+            <h3 id="dTea">--</h3>
+            <p id="labelTea">在职教师总数</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="color: #7bff7b; background-color: rgba(123, 255, 123, 0.1);">
+            <i class="fa-solid fa-book-open"></i>
+        </div>
+        <div class="stat-info">
+            <h3 id="dCou">--</h3>
+            <p id="labelCou">开设课程总数</p>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Area -->
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <span><i class="fa-solid fa-chart-line me-2"></i>学生考勤趋势</span>
+                <button class="btn btn-sm btn-link text-secondary"><i class="fa-solid fa-ellipsis"></i></button>
+            </div>
+            <div class="card-body">
+                <div id="regChart" class="chart-container"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <span><i class="fa-solid fa-chart-pie me-2"></i>课程类型分布</span>
+            </div>
+            <div class="card-body">
+                <div id="catChart" class="chart-container"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Section: Recent Activity & Attendance -->
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <span><i class="fa-solid fa-clock-rotate-left me-2"></i>最近教务活动</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush" id="recentList">
+                    <!-- Items will be populated by JS -->
+                    <div class="p-3 text-center text-secondary">加载中...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <span><i class="fa-solid fa-check-to-slot me-2"></i>今日考勤概览</span>
+            </div>
+            <div class="card-body">
+                <div id="attendanceChart" class="chart-container" style="height: 250px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 智能分析模态窗口 -->
+<div class="modal fade" id="aiAnalysisModal" tabindex="-1" aria-labelledby="aiAnalysisModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="aiAnalysisModalLabel">
+                    <i class="fa-solid fa-wand-magic-sparkles me-2"></i>智能数据分析报告
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="aiAnalysisReport"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="copyReportBtn" onclick="copyReport()">
+                    <i class="fa-solid fa-copy me-2"></i>复制报告
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/dashboard/dashboard.js' %}"></script>
+<script>
+    document.body.classList.add('traditional-dashboard');
+    console.log('Dashboard page loaded');
+</script>
+{% endblock %}

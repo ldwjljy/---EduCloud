@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block page_title %}个人设置{% endblock %}
+{% block page_header %}个人设置{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/dashboard/dashboard.css' %}">
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="section mb-3"><span class="badge bg-primary">个人资料</span></div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100">
+          <div class="card-title fw-bold mb-3">基本信息</div>
+          <div id="profileInfo" class="mt-2"></div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100">
+          <div class="card-title fw-bold mb-3">修改密码</div>
+          <input id="oldpwd" class="form-control mb-2" placeholder="原密码" type="password" />
+          <input id="newpwd" class="form-control mb-2" placeholder="新密码" type="password" />
+          <button class="btn btn-primary mt-2" onclick="changePwd()">提交</button>
+          <div id="pwdmsg" class="mt-2"></div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100">
+          <div class="card-title fw-bold mb-3">修改手机号</div>
+          <input id="newphone" class="form-control mb-2" placeholder="新手机号" type="text" />
+          <button class="btn btn-primary mt-2" onclick="changePhone()">提交</button>
+          <div id="phonemsg" class="mt-2"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100">
+          <div class="card-title fw-bold mb-3">学习信息</div>
+          <div id="studyInfo" class="mt-2"></div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100">
+          <div class="card-title fw-bold mb-3">考勤信息</div>
+          <div id="attInfo" class="mt-2"></div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100">
+          <div class="card-title fw-bold mb-3">成绩信息</div>
+          <div id="gradeInfo" class="mt-2"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'js/accounts/accounts.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block page_title %}学生{{ title }}{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <form method="post" class="card border-0 shadow-sm">
+          {% csrf_token %}
+          <div class="card-header bg-white border-0 pt-4 ps-4">
+              <h5 class="mb-0 fw-bold text-primary"><i class="fa-solid fa-user-graduate me-2"></i>学生信息</h5>
+          </div>
+          <div class="card-body p-4">
+            <div class="row g-4">
+              <div class="col-md-6">
+                  <label class="form-label small fw-bold text-secondary">学号</label>
+                  {{ form.student_id }}
+              </div>
+              <div class="col-md-6">
+                  <label class="form-label small fw-bold text-secondary">姓名</label>
+                  {{ form.name }}
+              </div>
+              <div class="col-md-6">
+                  <label class="form-label small fw-bold text-secondary">性别</label>
+                  {{ form.gender }}
+              </div>
+              <div class="col-md-6">
+                  <label class="form-label small fw-bold text-secondary">所属班级</label>
+                  {{ form.class_name }}
+              </div>
+              <div class="col-md-6">
+                  <label class="form-label small fw-bold text-secondary">联系电话</label>
+                  {{ form.phone }}
+              </div>
+              <div class="col-md-6">
+                  <label class="form-label small fw-bold text-secondary">状态</label>
+                  {{ form.status }}
+              </div>
+              <div class="col-md-6">
+                  <label class="form-label small fw-bold text-secondary">年级</label>
+                  {{ form.grade }}
+              </div>
+            </div>
+          </div>
+          <div class="card-footer bg-white border-0 pb-4 ps-4 d-flex gap-3">
+            <button class="btn btn-primary px-4" type="submit">
+                <i class="fa-solid fa-save me-2"></i>保存
+            </button>
+            <a class="btn btn-outline-secondary px-4" href="/students/">
+                <i class="fa-solid fa-arrow-left me-2"></i>返回
+            </a>
+          </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

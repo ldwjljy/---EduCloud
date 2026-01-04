@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block page_title %}学生管理{% endblock %}
+{% block page_header %}学生管理{% endblock %}
+{% block page_actions %}
+<a href="/students/add/" class="btn btn-primary">
+  <i class="fa-solid fa-plus"></i> 新增学生
+</a>
+{% endblock %}
+{% block content %}
+<div class="card mb-4 border-0 shadow-sm">
+  <div class="card-body">
+    <form class="row g-3" method="get">
+      <div class="col-md-5">
+        <div class="input-group">
+          <span class="input-group-text bg-light border-0"><i class="fa-solid fa-magnifying-glass"></i></span>
+          <input type="text" name="q" value="{{ q }}" class="form-control bg-light border-0" placeholder="搜索学生姓名/学号...">
+        </div>
+      </div>
+      <div class="col-md-3">
+        <select name="status" class="form-select bg-light border-0">
+          <option value="">全部状态</option>
+          <option value="在读" {% if selected_status=='在读' %}selected{% endif %}>在读</option>
+          <option value="休学" {% if selected_status=='休学' %}selected{% endif %}>休学</option>
+          <option value="毕业" {% if selected_status=='毕业' %}selected{% endif %}>毕业</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button class="btn btn-primary w-100" type="submit">搜索</button>
+      </div>
+      <div class="col-md-2">
+        <a href="/students/add/" class="btn btn-outline-primary w-100 d-md-none mt-2">新增</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table align-middle table-hover mb-0">
+        <thead class="bg-light">
+          <tr>
+            <th class="ps-4">学号</th>
+            <th>姓名</th>
+            <th>性别</th>
+            <th>所属班级</th>
+            <th>年级</th>
+            <th>联系电话</th>
+            <th>状态</th>
+            <th class="text-end pe-4">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in students %}
+          <tr>
+            <td class="ps-4 fw-bold text-primary">{{ s.student_id }}</td>
+            <td>
+              <div class="d-flex align-items-center">
+                <div
+                  class="avatar-sm bg-light rounded-circle text-primary d-flex align-items-center justify-content-center me-2"
+                  style="width:32px;height:32px">
+                  {{ s.name|first }}
+                </div>
+                {{ s.name }}
+              </div>
+            </td>
+            <td>{{ s.gender }}</td>
+            <td><span class="badge bg-light text-dark border">{{ s.class_name }}</span></td>
+            <td>{{ s.grade }}</td>
+            <td>{{ s.phone }}</td>
+            <td>
+              {% if s.status == '在读' %}
+              <span class="badge bg-success-subtle text-success">在读</span>
+              {% elif s.status == '休学' %}
+              <span class="badge bg-warning-subtle text-warning">休学</span>
+              {% else %}
+              <span class="badge bg-secondary-subtle text-secondary">{{ s.status }}</span>
+              {% endif %}
+            </td>
+            <td class="text-end pe-4">
+              <a href="/students/edit/{{ s.id }}/" class="btn btn-sm btn-outline-primary me-1" title="编辑">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </a>
+              <a href="/students/delete/{{ s.id }}/" class="btn btn-sm btn-outline-danger" title="删除">
+                <i class="fa-solid fa-trash"></i>
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="8" class="text-center py-5 text-muted">
+              <div class="mb-2"><i class="fa-regular fa-folder-open fa-2x"></i></div>
+              暂无学生数据
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card-footer bg-white">
+    <nav>
+      <ul class="pagination mb-0">
+        {% if students.has_previous %}
+        <li class="page-item"><a class="page-link"
+            href="?page={{ students.previous_page_number }}&q={{ q }}&status={{ status }}">上一页</a></li>
+        {% endif %}
+        <li class="page-item active"><span class="page-link">{{ students.number }}</span></li>
+        {% if students.has_next %}
+        <li class="page-item"><a class="page-link"
+            href="?page={{ students.next_page_number }}&q={{ q }}&status={{ status }}">下一页</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block page_title %}删除教室{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <p>确认删除教室 {{ obj.name }} ?</p>
+        <form method="post">{% csrf_token %}
+            <button class="btn btn-danger" type="submit">删除</button>
+            <a class="btn btn-outline-secondary" href="/classrooms/">取消</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

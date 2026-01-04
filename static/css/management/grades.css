@@ -1,0 +1,722 @@
+/* 成绩管理页面样式 */
+
+.grades-management-container {
+    padding: 20px;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+/* 统计卡片 */
+.statistics-section {
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.stat-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+}
+
+.stat-icon.bg-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stat-icon.bg-success {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.stat-icon.bg-info {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.stat-icon.bg-warning {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+/* 卡片样式 */
+.card {
+    border-radius: 12px;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0;
+}
+
+.card-body {
+    padding: 24px;
+}
+
+/* 表单样式 */
+.form-label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.form-control,
+.form-select {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    padding: 10px 14px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+}
+
+/* 按钮样式 */
+.btn {
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+.btn-info {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.btn-outline-primary {
+    border: 2px solid #667eea;
+    color: #667eea;
+    background: transparent;
+}
+
+.btn-outline-primary:hover {
+    background: #667eea;
+    color: white;
+}
+
+.btn-outline-secondary {
+    border: 2px solid #6c757d;
+    color: #6c757d;
+    background: transparent;
+}
+
+.btn-outline-secondary:hover {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-outline-danger {
+    border: 2px solid #dc3545;
+    color: #dc3545;
+    background: transparent;
+}
+
+.btn-outline-danger:hover {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+/* 表格样式 */
+.table-responsive {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.table {
+    margin-bottom: 0;
+    background: white;
+}
+
+.table thead,
+.table-light,
+.table-dark {
+    background: #ffffff !important;
+}
+
+.table thead th,
+.table-light th,
+.table-dark th {
+    border-bottom: 2px solid #e9ecef;
+    color: #1b2559 !important;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 16px 12px;
+    text-transform: none;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    background: #ffffff !important;
+}
+
+.table-bordered {
+    border: 1px solid #e9ecef;
+}
+
+.table-bordered thead th {
+    border: 1px solid #e9ecef;
+}
+
+.table-bordered tbody td {
+    border: 1px solid #e9ecef;
+}
+
+.table tbody td {
+    padding: 16px 12px;
+    vertical-align: middle;
+    font-size: 14px;
+    color: #2c3e50;
+    background: white;
+    transition: all 0.2s ease;
+}
+
+/* 条纹行效果 */
+.table tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.table tbody tr:nth-child(odd) {
+    background-color: white;
+}
+
+.table-hover tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #e7f3ff !important;
+    transform: scale(1.001);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+}
+
+/* 成绩输入框美化 */
+#teacherStudentTableBody input[type="number"],
+#teacherStudentTableBody input[type="text"] {
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: white;
+    font-weight: 500;
+}
+
+#teacherStudentTableBody input[type="number"]:focus,
+#teacherStudentTableBody input[type="text"]:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    outline: none;
+    background: #f8f9ff;
+}
+
+#teacherStudentTableBody input[type="number"]:hover:not(:disabled):not([readonly]),
+#teacherStudentTableBody input[type="text"]:hover:not(:disabled):not([readonly]) {
+    border-color: #667eea;
+    background: #f8f9ff;
+}
+
+#teacherStudentTableBody input[readonly] {
+    background: #f5f5f5;
+    cursor: not-allowed;
+    font-weight: 600;
+}
+
+/* 总分输入框特殊样式 */
+#teacherStudentTableBody input.text-success {
+    border-color: #28a745;
+    color: #28a745;
+}
+
+#teacherStudentTableBody input.text-danger {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+/* 状态徽章美化 */
+#teacherStudentTableBody .badge {
+    padding: 8px 16px;
+    font-weight: 600;
+    font-size: 13px;
+    border-radius: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#teacherStudentTableBody .badge.bg-success {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
+    color: white;
+}
+
+#teacherStudentTableBody .badge.bg-danger {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important;
+    color: white;
+}
+
+#teacherStudentTableBody .badge.bg-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #868e96 100%) !important;
+    color: white;
+}
+
+/* 序号列样式 */
+#teacherStudentTableBody td:first-child {
+    font-weight: 600;
+    color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+}
+
+/* 学号和姓名列样式 */
+#teacherStudentTableBody td:nth-child(2),
+#teacherStudentTableBody td:nth-child(3) {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+/* 徽章样式 */
+.badge {
+    padding: 6px 12px;
+    font-weight: 500;
+    font-size: 12px;
+    border-radius: 6px;
+}
+
+.badge.bg-success {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+.badge.bg-danger {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.badge.bg-warning {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+.badge.bg-info {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.badge.bg-secondary {
+    background: #6c757d;
+}
+
+.badge.bg-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* 分页样式 */
+.pagination {
+    gap: 5px;
+}
+
+.page-item .page-link {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    color: #667eea;
+    padding: 8px 14px;
+    transition: all 0.3s ease;
+    margin: 0 2px;
+}
+
+.page-item .page-link:hover {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+.page-item.active .page-link {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+    color: white;
+}
+
+.page-item.disabled .page-link {
+    color: #6c757d;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+
+/* 模态框样式 */
+.modal-content {
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    border-bottom: 1px solid #f0f0f0;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px 16px 0 0;
+}
+
+.modal-title {
+    color: white;
+    font-weight: 600;
+}
+
+.modal-header .btn-close {
+    filter: brightness(0) invert(1);
+    opacity: 0.8;
+}
+
+.modal-header .btn-close:hover {
+    opacity: 1;
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.modal-footer {
+    border-top: 1px solid #f0f0f0;
+    padding: 16px 24px;
+}
+
+/* Alert 样式 */
+.alert {
+    border-radius: 12px;
+    border: none;
+    padding: 16px 20px;
+}
+
+.alert-info {
+    background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+    color: #00796b;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    color: #2e7d32;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+    color: #e65100;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+    color: #c62828;
+}
+
+/* 图标样式 */
+.fas,
+.far {
+    margin-right: 4px;
+}
+
+/* 成绩表格特殊样式增强 */
+#teacherStudentTableBody tr {
+    animation: fadeInRow 0.3s ease;
+    animation-fill-mode: both;
+}
+
+@keyframes fadeInRow {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* 为每一行添加延迟动画 */
+#teacherStudentTableBody tr:nth-child(1) { animation-delay: 0.05s; }
+#teacherStudentTableBody tr:nth-child(2) { animation-delay: 0.1s; }
+#teacherStudentTableBody tr:nth-child(3) { animation-delay: 0.15s; }
+#teacherStudentTableBody tr:nth-child(4) { animation-delay: 0.2s; }
+#teacherStudentTableBody tr:nth-child(5) { animation-delay: 0.25s; }
+#teacherStudentTableBody tr:nth-child(n+6) { animation-delay: 0.3s; }
+
+/* 输入框聚焦时的动画效果 */
+#teacherStudentTableBody input:focus {
+    transform: scale(1.02);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .grades-management-container {
+        padding: 15px;
+    }
+    
+    .stat-card {
+        margin-bottom: 15px;
+    }
+    
+    .table {
+        font-size: 12px;
+    }
+    
+    .table thead th,
+    .table tbody td {
+        padding: 10px 8px;
+    }
+    
+    .btn {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+    
+    .modal-dialog {
+        margin: 10px;
+    }
+    
+    #teacherStudentTableBody input[type="number"],
+    #teacherStudentTableBody input[type="text"] {
+        font-size: 12px;
+        padding: 6px 8px;
+    }
+}
+
+/* 文本样式 */
+.text-success {
+    color: #28a745 !important;
+}
+
+.text-danger {
+    color: #dc3545 !important;
+}
+
+.text-muted {
+    color: #6c757d !important;
+}
+
+.text-center {
+    text-align: center !important;
+}
+
+/* 动画 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card,
+.stat-card {
+    animation: fadeIn 0.5s ease;
+}
+
+/* 加载动画 */
+.spinner-border {
+    width: 2rem;
+    height: 2rem;
+    border-width: 0.25rem;
+}
+
+/* 空状态样式 */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+}
+
+.empty-state i {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.3;
+}
+
+.empty-state p {
+    font-size: 16px;
+    margin: 0;
+}
+
+/* 筛选栏样式 */
+.filter-section {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+}
+
+/* 操作按钮组 */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.action-buttons .btn {
+    flex: 0 0 auto;
+}
+
+/* Form check 样式 */
+.form-check-input {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 2px solid #dee2e6;
+    cursor: pointer;
+}
+
+.form-check-input:checked {
+    background-color: #667eea;
+    border-color: #667eea;
+}
+
+.form-check-label {
+    margin-left: 8px;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* 滚动条样式 */
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #5568d3;
+}
+
+/* 视图切换按钮样式增强 - 统一紫色主题，跟查询按钮一样 */
+#viewToggleDiv .btn-outline-primary {
+    position: relative;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    padding: 8px 20px;
+    border: none;
+}
+
+/* 所有按钮默认都是纯色背景白色文字 */
+#viewToggleDiv .btn-outline-primary,
+#viewByClass,
+#viewByCourse {
+    background: rgba(67, 24, 255, 1) !important;
+    background-color: rgba(67, 24, 255, 1) !important;
+    background-image: none !important;
+    border-color: rgba(67, 24, 255, 1) !important;
+    border-image: none !important;
+    color: white !important;
+}
+
+#viewToggleDiv .btn-outline-primary i {
+    color: white !important;
+}
+
+/* 选中状态 - 增加阴影和上浮效果来区分 */
+#viewToggleDiv .btn-outline-primary.active,
+#viewByClass.active,
+#viewByCourse.active {
+    background: rgba(67, 24, 255, 1) !important;
+    background-color: rgba(67, 24, 255, 1) !important;
+    background-image: none !important;
+    border-color: rgba(67, 24, 255, 1) !important;
+    border-image: none !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5) !important;
+    transform: translateY(-2px);
+}
+
+/* 选中状态的图标也要是白色 */
+#viewToggleDiv .btn-outline-primary.active i {
+    color: white !important;
+}
+
+/* 悬停效果 */
+#viewToggleDiv .btn-outline-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 添加选中指示器 - 白色勾号 */
+#viewToggleDiv .btn-outline-primary.active::after {
+    content: ' ✓';
+    margin-left: 8px;
+    font-weight: bold;
+    font-size: 16px;
+    color: white;
+}
+

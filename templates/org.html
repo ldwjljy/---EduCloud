@@ -1,0 +1,359 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}组织管理{% endblock %}
+{% block page_header %}组织管理{% endblock %}
+
+{% block head %}
+<!-- Remove dashboard.css as we are using modern.css now -->
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-2">
+        <div class="d-flex gap-2">
+          <button class="btn btn-primary" id="btn-college" onclick="showCollege()">
+            <i class="fa-solid fa-university me-2"></i>学院管理
+          </button>
+          <button class="btn btn-outline-secondary" id="btn-dept" onclick="showDept()">
+            <i class="fa-solid fa-layer-group me-2"></i>专业管理
+          </button>
+          <button class="btn btn-outline-secondary" id="btn-class" onclick="showClass()">
+            <i class="fa-solid fa-people-roof me-2"></i>班级管理
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- College Management Panel -->
+<div id="panel-college" class="row">
+  <div class="col-lg-4 mb-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-header bg-white border-0 pt-4 ps-4">
+        <h5 class="mb-0 fw-bold text-primary"><i class="fa-solid fa-plus-circle me-2"></i>新增学院</h5>
+      </div>
+      <div class="card-body p-4">
+        <div class="mb-3">
+          <label class="form-label text-secondary small fw-bold">学院ID <span class="text-muted small">(2位数字，可选，留空自动生成)</span></label>
+          <input id="collegeCodeAdd" class="form-control bg-light border-0" placeholder="请输入2位数字，如：01" maxlength="2" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label text-secondary small fw-bold">学院名称</label>
+          <input id="collegeNameAdd" class="form-control bg-light border-0" placeholder="请输入学院名称" />
+        </div>
+        <button class="btn btn-primary w-100 mb-3" onclick="addCollege()">
+          <i class="fa-solid fa-check me-2"></i>新增学院
+        </button>
+        <div id="collegeMsg"></div>
+
+        <hr class="my-4 text-secondary opacity-25">
+
+        <h6 class="fw-bold text-primary mb-3"><i class="fa-solid fa-file-import me-2"></i>批量导入</h6>
+        <div class="alert alert-light border small mb-2 text-secondary">
+          <i class="fa-solid fa-circle-info me-1"></i> CSV格式：名称 (每行一个)
+        </div>
+        <textarea id="collegeCsv" class="form-control bg-light border-0 mb-3" placeholder="计算机学院&#10;外国语学院"
+          style="height:120px"></textarea>
+        <button class="btn btn-outline-primary w-100" onclick="submitCollegeImport()">
+          <i class="fa-solid fa-upload me-2"></i>开始导入
+        </button>
+        <div id="collegeImportMsg" class="mt-2"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8 mb-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-bold text-primary"><i class="fa-solid fa-list me-2"></i>学院列表</h5>
+        <div class="d-flex gap-2">
+          <div class="input-group input-group-sm" style="width: 200px;">
+            <span class="input-group-text bg-light border-0"><i class="fa-solid fa-search"></i></span>
+            <input id="collegeQ" class="form-control bg-light border-0" placeholder="搜索学院..." />
+          </div>
+          <button class="btn btn-sm btn-outline-secondary" onclick="exportColleges()">
+            <i class="fa-solid fa-download"></i>
+          </button>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table align-middle table-hover mb-0">
+            <thead class="bg-light">
+              <tr>
+                <th class="ps-4">学院ID</th>
+                <th>名称</th>
+                <th class="text-end pe-4">操作</th>
+              </tr>
+            </thead>
+            <tbody id="collegeRows"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card-footer bg-white border-0">
+        <div id="collegeTotal" class="text-secondary small"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Department Management Panel -->
+<div id="panel-dept" class="row" style="display:none;">
+  <div class="col-lg-4 mb-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-header bg-white border-0 pt-4 ps-4">
+        <h5 class="mb-0 fw-bold text-primary"><i class="fa-solid fa-plus-circle me-2"></i>新增专业</h5>
+      </div>
+      <div class="card-body p-4">
+        <div class="mb-3">
+          <label class="form-label text-secondary small fw-bold">专业ID <span class="text-muted small">(可选，留空自动生成)</span></label>
+          <input id="deptCodeAdd" class="form-control bg-light border-0" placeholder="请输入2位数字，如：01" maxlength="2"/>
+        </div>
+        <div class="mb-3">
+          <label class="form-label text-secondary small fw-bold">专业名称</label>
+          <input id="deptNameAdd" class="form-control bg-light border-0" placeholder="请输入专业名称" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label text-secondary small fw-bold">所属学院</label>
+          <select id="deptCollegeAdd" class="form-select bg-light border-0"></select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label text-secondary small fw-bold">学制类型</label>
+            <select id="deptDurationAdd" class="form-select bg-light border-0">
+                <option value="3_year">3年制</option>
+                <option value="5_year">5年制</option>
+                <option value="6_year">6年制</option>
+            </select>
+        </div>
+        <button class="btn btn-primary w-100 mb-3" onclick="addDepartment()">
+          <i class="fa-solid fa-check me-2"></i>新增专业
+        </button>
+        <div id="deptMsg"></div>
+
+        <hr class="my-4 text-secondary opacity-25">
+
+        <h6 class="fw-bold text-primary mb-3"><i class="fa-solid fa-file-import me-2"></i>批量导入</h6>
+        <div class="alert alert-light border small mb-2 text-secondary">
+          <i class="fa-solid fa-circle-info me-1"></i> CSV格式：名称,学院
+        </div>
+        <textarea id="deptCsv" class="form-control bg-light border-0 mb-3" placeholder="软件工程,计算机学院&#10;金融工程,经济学院"
+          style="height:120px"></textarea>
+        <button class="btn btn-outline-primary w-100" onclick="submitDepartmentImport()">
+          <i class="fa-solid fa-upload me-2"></i>开始导入
+        </button>
+        <div id="deptImportMsg" class="mt-2"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8 mb-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div
+        class="card-header bg-white border-0 pt-4 px-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <h5 class="mb-0 fw-bold text-primary"><i class="fa-solid fa-list me-2"></i>专业列表</h5>
+        <div class="d-flex gap-2 align-items-center">
+          <select id="deptFilterCollege" class="form-select form-select-sm bg-light border-0" style="width:150px;">
+            <option value="">筛选学院</option>
+          </select>
+          <div class="input-group input-group-sm" style="width: 180px;">
+            <span class="input-group-text bg-light border-0"><i class="fa-solid fa-search"></i></span>
+            <input id="deptQ" class="form-control bg-light border-0" placeholder="搜索专业..." />
+          </div>
+          <button class="btn btn-sm btn-outline-secondary" onclick="exportDepartments()">
+            <i class="fa-solid fa-download"></i>
+          </button>
+        </div>
+      </div>
+      <div class="card-body p-0 mt-3">
+        <div class="table-responsive">
+          <table class="table align-middle table-hover mb-0">
+            <thead class="bg-light">
+              <tr>
+                <th class="ps-4">专业ID</th>
+                <th>名称</th>
+                <th>学院</th>
+                <th>学制</th>
+                <th class="text-end pe-4">操作</th>
+              </tr>
+            </thead>
+            <tbody id="deptRows"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card-footer bg-white border-0">
+        <div id="deptTotal" class="text-secondary small"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Class Management Panel -->
+<div id="panel-class" class="row" style="display:none;">
+  <div class="col-lg-4 mb-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-header bg-white border-0 pt-4 ps-4">
+        <h5 class="mb-0 fw-bold text-primary"><i class="fa-solid fa-plus-circle me-2"></i>新增班级</h5>
+      </div>
+      <div class="card-body p-4">
+        <div class="mb-3">
+          <label class="form-label text-secondary small fw-bold">年级ID (4位数字)</label>
+          <input id="classYearAdd" class="form-control bg-light border-0" placeholder="例如：2025" maxlength="4"/>
+        </div>
+        <div class="mb-3">
+          <label class="form-label text-secondary small fw-bold">班级数量</label>
+          <input id="classNumAdd" class="form-control bg-light border-0" placeholder="例如：3 (将自动创建1,2,3班)" type="number" min="1"/>
+        </div>
+        <div class="mb-3">
+          <label class="form-label text-secondary small fw-bold">所属学院</label>
+          <select id="classCollegeAdd" class="form-select bg-light border-0" onchange="loadDeptOptionsForClass(this.value)"></select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label text-secondary small fw-bold">所属专业</label>
+          <select id="classDeptAdd" class="form-select bg-light border-0"></select>
+        </div>
+        <button class="btn btn-primary w-100 mb-3" onclick="addClass()">
+          <i class="fa-solid fa-check me-2"></i>新增班级
+        </button>
+        <div id="classMsg"></div>
+      </div>
+    </div>
+
+    <!-- Edit Class Card (Initially Hidden) -->
+    <div class="card border-0 shadow-sm mt-4" id="classEditCard" style="display:none">
+      <div class="card-header bg-white border-0 pt-4 ps-4">
+        <h5 class="mb-0 fw-bold text-primary"><i class="fa-solid fa-pen me-2"></i>编辑班级</h5>
+      </div>
+      <div class="card-body p-4">
+        <div id="classEditTitle" class="text-secondary small mb-3"></div>
+        <div class="mb-3">
+          <input id="classEditName" class="form-control bg-light border-0" placeholder="班级名称" />
+        </div>
+        <div class="mb-3">
+          <input id="classEditYear" class="form-control bg-light border-0" placeholder="年级" />
+        </div>
+        <div class="mb-3">
+          <select id="classEditCollege" class="form-select bg-light border-0"></select>
+        </div>
+        <div class="mb-3">
+          <select id="classEditDept" class="form-select bg-light border-0"></select>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-primary flex-grow-1" onclick="saveEditClass()">保存</button>
+          <button class="btn btn-outline-secondary flex-grow-1" onclick="cancelEditClass()">取消</button>
+        </div>
+        <div id="classEditMsg" class="mt-2"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8 mb-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div
+        class="card-header bg-white border-0 pt-4 px-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <h5 class="mb-0 fw-bold text-primary"><i class="fa-solid fa-list me-2"></i>班级列表</h5>
+        <div class="d-flex gap-2 align-items-center">
+          <select id="classFilterCollege" class="form-select form-select-sm bg-light border-0" style="width:140px;">
+            <option value="">筛选学院</option>
+          </select>
+          <select id="classFilterDept" class="form-select form-select-sm bg-light border-0" style="width:140px;">
+            <option value="">筛选专业</option>
+          </select>
+          <div class="input-group input-group-sm" style="width: 160px;">
+            <span class="input-group-text bg-light border-0"><i class="fa-solid fa-search"></i></span>
+            <input id="classQ" class="form-control bg-light border-0" placeholder="搜索班级..." />
+          </div>
+          <button class="btn btn-sm btn-outline-secondary" onclick="exportClasses()">
+            <i class="fa-solid fa-download"></i>
+          </button>
+        </div>
+      </div>
+      <div class="card-body p-0 mt-3">
+        <div class="table-responsive">
+          <table class="table align-middle table-hover mb-0">
+            <thead class="bg-light">
+              <tr>
+                <th class="ps-4">班级ID</th>
+                <th>名称</th>
+                <th>年级</th>
+                <th>专业</th>
+                <th class="text-end pe-4">操作</th>
+              </tr>
+            </thead>
+            <tbody id="classRows"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card-footer bg-white border-0">
+        <div id="classTotal" class="text-secondary small"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'vendor/sheetjs/xlsx.full.min.js' %}"></script>
+<script src="{% static 'js/org/org.js' %}"></script>
+<script>
+  // Tab Switching Logic
+  function updateActiveTab(type) {
+    ['btn-college', 'btn-dept', 'btn-class'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) {
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-outline-secondary');
+      }
+    });
+    const activeBtn = document.getElementById('btn-' + type);
+    if (activeBtn) {
+      activeBtn.classList.remove('btn-outline-secondary');
+      activeBtn.classList.add('btn-primary');
+    }
+  }
+
+  // Hook into global functions from org.js
+  const originalShowCollege = window.showCollege;
+  window.showCollege = function () {
+    document.getElementById('panel-college').style.display = 'flex';
+    document.getElementById('panel-dept').style.display = 'none';
+    document.getElementById('panel-class').style.display = 'none';
+    updateActiveTab('college');
+    if (originalShowCollege) originalShowCollege(); // Load data
+  }
+
+  const originalShowDept = window.showDept;
+  window.showDept = function () {
+    document.getElementById('panel-college').style.display = 'none';
+    document.getElementById('panel-dept').style.display = 'flex';
+    document.getElementById('panel-class').style.display = 'none';
+    updateActiveTab('dept');
+    if (originalShowDept) originalShowDept(); // Load data
+  }
+
+  const originalShowClass = window.showClass;
+  window.showClass = function () {
+    document.getElementById('panel-college').style.display = 'none';
+    document.getElementById('panel-dept').style.display = 'none';
+    document.getElementById('panel-class').style.display = 'flex';
+    updateActiveTab('class');
+    if (originalShowClass) originalShowClass(); // Load data
+  }
+
+  // Initialize
+  document.addEventListener('DOMContentLoaded', function () {
+    // 默认显示学院管理，但也确保所有面板的初始状态正确
+    // 如果用户之前的操作导致状态混乱，这里重置一下
+    // 绑定按钮点击事件
+    document.getElementById('btn-college').onclick = window.showCollege;
+    document.getElementById('btn-dept').onclick = window.showDept;
+    document.getElementById('btn-class').onclick = window.showClass;
+    
+    showCollege();
+  });
+</script>
+{% endblock %}

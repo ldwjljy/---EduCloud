@@ -1,0 +1,79 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+/staticfiles/
+/media/
+
+# 环境变量
+.env
+.env.local
+.env.*.local
+# 但保留示例文件
+!.env.example
+!env.example
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# 项目特定
+*.sql
+database_export.sql
+*.bat
+# 归档文件目录应被跟踪（保留作为参考）
+!归档文件/
+# 但保留启动脚本和工具脚本
+!start.bat
+!start.sh
+!start.py
+!start_3d_dashboard.bat
+# 保留部署脚本
+!deploy.bat
+!deploy.sh
+# 保留工具目录的批处理文件
+!工具/**/*.bat
+# 保留一键检查目录的批处理文件
+!一键检查/*.bat
+
+# 测试
+.pytest_cache/
+.coverage
+htmlcov/
+test_*.py
+test_*.bat
+*_test.py
+
+# 其他
+.continue/
+.cursor/
+.trae/
+.vercel/

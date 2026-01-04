@@ -1,0 +1,55 @@
+{% load static %}
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>注册账号 - 智慧教务平台</title>
+  {% load static %}
+  <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+</head>
+<body style="background:url('https://images.unsplash.com/photo-1535930749574-1399327ce78f?q=80&w=1920&auto=format&fit=crop') center/cover fixed">
+  <div class="d-flex align-items-center justify-content-center" style="min-height:100vh;background:rgba(0,0,0,.45)">
+    <div class="bg-white rounded-3 shadow p-4" style="width:480px">
+      <h4 class="text-center mb-3">智慧教务平台</h4>
+      <div class="mb-3 text-center">注册账号</div>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">用户名</label>
+          <input type="text" name="username" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">姓名</label>
+          <input type="text" name="full_name" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">邮箱</label>
+          <input type="email" name="email" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">密码</label>
+          <input type="password" name="password1" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">确认密码</label>
+          <input type="password" name="password2" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">选择角色</label>
+          <select name="role" class="form-select">
+            <option value="student">学生</option>
+            <option value="teacher">教师</option>
+            <option value="admin">管理员</option>
+          </select>
+        </div>
+        <div class="d-grid gap-2">
+          <button class="btn btn-primary" type="submit">注册</button>
+          <a class="btn btn-outline-secondary" href="/accounts/login/">已有账号？立即登录</a>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>

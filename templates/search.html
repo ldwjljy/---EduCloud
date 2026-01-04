@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block page_title %}搜索：{{ q }}{% endblock %}
+{% block page_header %}搜索结果{% endblock %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h6>学生</h6>
+                <ul class="list-group list-group-flush">
+                    {% for s in students %}
+                    <li class="list-group-item">{{ s.name }} · {{ s.student_id }} <a
+                            class="btn btn-sm btn-outline-secondary float-end" href="/students/edit/{{ s.id }}/">编辑</a>
+                    </li>
+                    {% empty %}<li class="list-group-item text-muted">无匹配</li>{% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h6>课程</h6>
+                <ul class="list-group list-group-flush">
+                    {% for c in courses %}
+                    <li class="list-group-item">{{ c.name }} · {{ c.code }} <a
+                            class="btn btn-sm btn-outline-secondary float-end" href="/courses/edit/{{ c.id }}/">编辑</a>
+                    </li>
+                    {% empty %}<li class="list-group-item text-muted">无匹配</li>{% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h6>教师</h6>
+                <ul class="list-group list-group-flush">
+                    {% for t in teachers %}
+                    <li class="list-group-item">{{ t.name }} · {{ t.title }} <a
+                            class="btn btn-sm btn-outline-secondary float-end" href="/teachers/edit/{{ t.id }}/">编辑</a>
+                    </li>
+                    {% empty %}<li class="list-group-item text-muted">无匹配</li>{% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h6>教室</h6>
+                <ul class="list-group list-group-flush">
+                    {% for r in classrooms %}
+                    <li class="list-group-item">{{ r.name }} · {{ r.location }} <a
+                            class="btn btn-sm btn-outline-secondary float-end"
+                            href="/classrooms/edit/{{ r.id }}/">编辑</a></li>
+                    {% empty %}<li class="list-group-item text-muted">无匹配</li>{% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h6>考试</h6>
+                <ul class="list-group list-group-flush">
+                    {% for e in exams %}
+                    <li class="list-group-item">{{ e.name }} · {{ e.course.name }} · {{ e.date }} <a
+                            class="btn btn-sm btn-outline-secondary float-end" href="/exams/edit/{{ e.id }}/">编辑</a>
+                    </li>
+                    {% empty %}<li class="list-group-item text-muted">无匹配</li>{% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

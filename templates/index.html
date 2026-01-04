@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block page_title %}首页{% endblock %}
+{% block page_header %}首页{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/home/home.css' %}?v=20231203-fix-row">
+<style>
+  /* Quick fix for home.js elements if they rely on specific classes not in modern.css */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .kpi-card {
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  .kpi-title {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+  }
+
+  .kpi-num {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--text-primary);
+  }
+
+  .dash-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .chart {
+    width: 100%;
+    height: 300px;
+  }
+
+  .legend {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+  }
+
+  /* 热门课程进度条样式 */
+  .hot-courses-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: 260px;
+  }
+
+  .hot-course-item {
+    position: relative;
+  }
+
+  .hot-course-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .hot-course-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .hot-course-count {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #f97316;
+    margin-left: 12px;
+    min-width: 40px;
+    text-align: right;
+  }
+
+  .hot-course-progress-container {
+    width: 100%;
+    height: 32px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .hot-course-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #f97316 0%, #fb923c 50%, #fdba74 100%);
+    border-radius: 16px;
+    transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hot-course-progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.3) 50%,
+      transparent 100%
+    );
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .hot-course-progress-text {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="section mb-3"><span class="badge bg-light text-primary">首页概览</span></div>
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-title">在校学生总数</div>
+    <div id="kpiStudents" class="kpi-num">{{ students_count }}</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-title">教职工总人数</div>
+    <div id="kpiTeachers" class="kpi-num">{{ teachers_count }}</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-title">开设课程总数</div>
+    <div id="kpiCourses" class="kpi-num">{{ courses_count }}</div>
+  </div>
+</div>
+
+<div class="section mb-3"><span class="badge bg-light text-primary">统计与趋势</span></div>
+<div class="dash-grid">
+  <div class="card border-0 shadow-sm p-3">
+    <div class="card-title fw-bold mb-3">各年级学生分布</div><canvas id="gradePie" class="chart"></canvas>
+    <div id="gradeLegend" class="legend"></div>
+  </div>
+  <div class="card border-0 shadow-sm p-3">
+    <div class="card-title fw-bold mb-3">每天全校课程总数（周一到周五）</div><canvas id="weekCourseBar" class="chart"></canvas>
+    <div class="legend"><span><span class="dot" style="background:#f97316"></span>课程节数</span></div>
+  </div>
+  <div class="card border-0 shadow-sm p-3">
+    <div class="card-title fw-bold mb-3">教师职务比例</div><canvas id="positionPie" class="chart"></canvas>
+    <div id="positionLegend" class="legend"></div>
+  </div>
+</div>
+
+<div class="section mb-3"><span class="badge bg-light text-primary">课程与日程</span></div>
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card border-0 shadow-sm p-3 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="card-title fw-bold mb-0">热门课程 TOP5</div>
+        <div class="d-flex align-items-center gap-2">
+          <div id="todayTotalClasses" class="badge bg-success-subtle text-success rounded-pill px-3 py-1" style="font-size: 0.75rem; font-weight: 600;"></div>
+          <div id="todayWeekday" class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1" style="font-size: 0.75rem;"></div>
+        </div>
+      </div>
+      <div id="hotCoursesList" class="hot-courses-list"></div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card border-0 shadow-sm p-3 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="fw-bold">日程</div>
+        <div id="monthLabel" class="text-primary fw-bold fs-7"></div>
+      </div>
+
+      <!-- Calendar -->
+      <div class="d-grid text-center mb-2 opacity-50"
+        style="grid-template-columns: repeat(7, 1fr); gap: 4px; font-size: 0.75rem; font-weight: 600;">
+        <div>日</div>
+        <div>一</div>
+        <div>二</div>
+        <div>三</div>
+        <div>四</div>
+        <div>五</div>
+        <div>六</div>
+      </div>
+      <div id="cal" class="calendar" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;"></div>
+
+      <hr class="my-3 opacity-10">
+
+      <!-- Events Timeline -->
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <span class="badge bg-primary-subtle text-primary rounded-pill px-2 py-1" style="font-size: 0.7rem;">TODAY &
+          UPCOMING</span>
+      </div>
+      <div class="timeline-container" id="eventList" style="max-height: 160px; overflow-y: auto; padding-right: 4px;">
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'js/home/home.js' %}?v=20251203-title-number"></script>
+{% endblock %}
